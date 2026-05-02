@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/auth/Login";
 import { RegisterPage } from "./pages/auth/Register";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
 
 function App() {
   return (
@@ -17,9 +18,7 @@ function App() {
           path="/student"
           element={
             <ProtectedRoute allowedRole="student">
-              <div className="p-8 text-center text-2xl font-semibold text-gray-800">
-                Student Dashboard — Coming Soon
-              </div>
+              <StudentDashboard />
             </ProtectedRoute>
           }
         />

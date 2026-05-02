@@ -56,9 +56,21 @@ export function LoginPage() {
 
       // 2. Role is valid — proceed to authenticate
       await signIn("password", { email, password, flow: "signIn" });
+      
+      // We do NOT navigate imperatively here.
+      // Instead, we let the useEffect above handle the redirection automatically
+      // once `currentUser` is fetched from Convex. This guarantees we don't
+      // redirect before the auth cookie/state is fully propagated, preventing
+      // the ProtectedRoute from kicking us back to /login.
 
-    } catch (err: unknown) {
-      setError("Email atau password salah. Silakan coba lagi.");
+    } catch (err: any) {
+      console.error("Login error:", err);
+      // Check if it's a server configuration error (like missing JWKS)
+      if (err?.message?.includes("JWKS") || err?.message?.includes("500")) {
+        setError("Terjadi kesalahan konfigurasi server (JWKS missing). Hubungi admin.");
+      } else {
+        setError("Email atau password salah. Silakan coba lagi.");
+      }
     } finally {
       setIsLoading(false);
     }
