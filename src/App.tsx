@@ -3,6 +3,7 @@ import { LoginPage } from "./pages/auth/Login";
 import { RegisterPage } from "./pages/auth/Register";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
+import { LecturerDashboard } from "./pages/dashboard/LecturerDashboard";
 
 function App() {
   return (
@@ -28,9 +29,7 @@ function App() {
           path="/lecturer"
           element={
             <ProtectedRoute allowedRole="lecturer">
-              <div className="p-8 text-center text-2xl font-semibold text-gray-800">
-                Lecturer Dashboard — Coming Soon
-              </div>
+              <LecturerDashboard />
             </ProtectedRoute>
           }
         />
