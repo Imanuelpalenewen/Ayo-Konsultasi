@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Brand: Mustard Yellow (matches Figma) */
   --color-primary: hsl(45, 93%, 47%);
@@ -29,6 +31,11 @@
     color: hsl(222, 22%, 12%);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  body.dark {
+    background-color: hsl(222, 47%, 11%);
+    color: hsl(210, 40%, 98%);
   }
 
   #root {

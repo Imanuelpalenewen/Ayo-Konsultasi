@@ -7,19 +7,21 @@ import { Link } from "react-router-dom";
 export function StudentDashboard() {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 h-full flex flex-col text-gray-900 dark:text-gray-100">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-          <p className="text-gray-600 mt-1">Overview of your consultations and activities.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Student Dashboard</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your consultations and track your progress.</p>
         </div>
 
         {/* Action Banner */}
         <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
           <div className="relative z-10 max-w-xl">
-            <h3 className="text-2xl md:text-3xl font-bold mb-3">Need Academic Guidance?</h3>
-            <p className="text-purple-100 mb-6 text-sm md:text-base">
-              Find the perfect lecturer for your needs using our AI-powered recommendation engine, or browse manually.
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+              Ready for your next consultation?
+            </h3>
+            <p className="text-purple-100 dark:text-purple-200 mb-6 max-w-xl">
+              Connect with expert lecturers to discuss your academic progress, thesis, or career path.
             </p>
             <Link
               to="/student/find-lecturer"

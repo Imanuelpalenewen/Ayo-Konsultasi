@@ -77,10 +77,10 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-950 transition-colors">
 
       {/* ── LEFT PANEL: Form ── */}
-      <div className="flex w-full md:w-1/2 h-screen items-center justify-center px-6 md:px-12 bg-white">
+      <div className="flex w-full md:w-1/2 h-screen items-center justify-center px-6 md:px-12 bg-white dark:bg-gray-950">
         <div className="w-full max-w-sm">
 
           {/* Logo wordmark */}
@@ -92,10 +92,10 @@ export function LoginPage() {
 
           {/* Heading */}
           <div className="mb-7">
-            <h1 className="text-[22px] font-bold text-gray-900 tracking-tight mb-1">
+            <h1 className="text-[22px] font-bold text-gray-900 dark:text-white tracking-tight mb-1">
               Masuk
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               AI-assisted academic consultation system.
             </p>
           </div>
@@ -111,7 +111,7 @@ export function LoginPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Email */}
             <div>
-              <label htmlFor="login-email" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="login-email" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Email Universitas
               </label>
               <input
@@ -123,11 +123,11 @@ export function LoginPage() {
                 required
                 disabled={isLoading}
                 className="
-                  w-full border border-gray-200 rounded-lg px-3.5 py-2.5
-                  text-sm text-gray-900 outline-none
+                  w-full border border-gray-200 dark:border-gray-800 rounded-lg px-3.5 py-2.5
+                  text-sm text-gray-900 dark:text-gray-100 outline-none
                   transition-[border-color,box-shadow] duration-200
                   focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
-                  placeholder:text-gray-400
+                  placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-gray-900
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
               />
@@ -135,7 +135,7 @@ export function LoginPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="login-password" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="login-password" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Password
               </label>
               <div className="relative">
@@ -147,10 +147,10 @@ export function LoginPage() {
                   required
                   disabled={isLoading}
                   className="
-                    w-full border border-gray-200 rounded-lg pl-3.5 pr-11 py-2.5
-                    text-sm text-gray-900 outline-none
+                    w-full border border-gray-200 dark:border-gray-800 rounded-lg pl-3.5 pr-11 py-2.5
+                    text-sm text-gray-900 dark:text-gray-100 outline-none
                     transition-[border-color,box-shadow] duration-200
-                    focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
+                    focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10 bg-white dark:bg-gray-900
                     disabled:opacity-50 disabled:cursor-not-allowed
                   "
                 />
@@ -173,10 +173,10 @@ export function LoginPage() {
 
             {/* Role selector */}
             <div>
-              <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Masuk sebagai
               </label>
-              <div className="flex border border-gray-200 rounded-lg p-1 bg-gray-50">
+              <div className="flex border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-gray-50 dark:bg-gray-900/50">
                 {(["student", "lecturer"] as Role[]).map((r) => (
                   <button
                     key={r}
@@ -188,8 +188,8 @@ export function LoginPage() {
                       transition-all duration-200 cursor-pointer
                       disabled:cursor-not-allowed
                       ${role === r
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "bg-transparent text-gray-500 hover:text-gray-700"
+                        ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                        : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                       }
                     `}
                   >
@@ -224,9 +224,9 @@ export function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
             Belum punya akun?{" "}
-            <Link to="/register" className="font-semibold text-gray-900 hover:underline">
+            <Link to="/register" className="font-semibold text-gray-900 dark:text-white hover:underline">
               Daftar sekarang
             </Link>
           </p>
@@ -234,7 +234,7 @@ export function LoginPage() {
       </div>
 
       {/* ── RIGHT PANEL: Brand / Illustration ── */}
-      <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden bg-[#FAFAFA] border-l border-gray-100">
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden bg-[#FAFAFA] dark:bg-[#0A0A0A] border-l border-gray-100 dark:border-gray-900">
         <div
           className="absolute pointer-events-none"
           style={{

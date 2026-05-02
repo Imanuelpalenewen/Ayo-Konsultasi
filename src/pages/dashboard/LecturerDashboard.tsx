@@ -9,10 +9,10 @@ export function LecturerDashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 h-full flex flex-col">
+      <div className="space-y-6 h-full flex flex-col text-gray-900 dark:text-gray-100">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Lecturer Dashboard</h2>
-          <p className="text-gray-600 mt-1">Manage your consultation requests and schedule.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Lecturer Dashboard</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your consultation requests and schedule.</p>
         </div>
 
         {/* Action Banner */}

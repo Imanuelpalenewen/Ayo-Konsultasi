@@ -37,13 +37,13 @@ export function Sidebar({ onClose, className = "" }: SidebarProps) {
   const links = user?.role === "student" ? studentLinks : user?.role === "lecturer" ? lecturerLinks : [];
 
   return (
-    <div className={`flex h-full flex-col bg-white border-r border-gray-200 ${className}`}>
-      <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-        <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-yellow-500 bg-clip-text text-transparent">
+    <div className={`flex h-full flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-colors ${className}`}>
+      <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 dark:border-gray-800">
+        <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-yellow-500 dark:from-purple-400 dark:to-yellow-400 bg-clip-text text-transparent">
           Ayo Konsultasi
         </span>
         {onClose && (
-          <button onClick={onClose} className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-md transition-colors">
+          <button onClick={onClose} className="md:hidden p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors">
             <X className="w-5 h-5" />
           </button>
         )}
@@ -59,11 +59,11 @@ export function Sidebar({ onClose, className = "" }: SidebarProps) {
                   onClick={onClose}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 ${
                     isActive
-                      ? "bg-purple-50 text-purple-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      ? "bg-purple-50 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-medium"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
                   }`}
                 >
-                  <link.icon className={`w-5 h-5 ${isActive ? "text-purple-600" : "text-gray-400"}`} />
+                  <link.icon className={`w-5 h-5 ${isActive ? "text-purple-600 dark:text-purple-400" : "text-gray-400 dark:text-gray-500"}`} />
                   {link.name}
                 </Link>
               </li>
@@ -71,10 +71,10 @@ export function Sidebar({ onClose, className = "" }: SidebarProps) {
           })}
         </ul>
       </nav>
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-800">
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 rounded-md hover:bg-red-50 transition-colors"
+          className="flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
         >
           <LogOut className="w-5 h-5" />
           Logout

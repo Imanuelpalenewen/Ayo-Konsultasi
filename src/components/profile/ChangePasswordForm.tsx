@@ -45,42 +45,42 @@ export function ChangePasswordForm() {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
         <input
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
         <input
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
         <input
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
         />
       </div>
 
       <button
         type="submit"
         disabled={isSaving}
-        className="w-full md:w-auto bg-gray-900 hover:bg-gray-800 text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        className="w-full md:w-auto bg-gray-900 dark:bg-purple-600 hover:bg-gray-800 dark:hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
       >
         {isSaving ? "Updating..." : "Update Password"}
       </button>

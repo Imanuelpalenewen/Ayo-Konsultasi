@@ -17,7 +17,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
+    <div className="flex h-screen bg-[#f8fafc] dark:bg-gray-900 overflow-hidden transition-colors">
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div

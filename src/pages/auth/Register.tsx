@@ -58,10 +58,10 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-950 transition-colors">
 
       {/* ── LEFT PANEL: Form ── */}
-      <div className="flex w-full md:w-1/2 h-screen items-center justify-center px-6 md:px-12 bg-white">
+      <div className="flex w-full md:w-1/2 h-screen items-center justify-center px-6 md:px-12 bg-white dark:bg-gray-950">
         <div className="w-full max-w-sm">
 
           {/* Logo wordmark */}
@@ -73,10 +73,10 @@ export function RegisterPage() {
 
           {/* Heading */}
           <div className="mb-5">
-            <h1 className="text-[22px] font-bold text-gray-900 tracking-tight mb-1">
+            <h1 className="text-[22px] font-bold text-gray-900 dark:text-white tracking-tight mb-1">
               Buat Akun
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Daftar untuk memulai konsultasi akademik.
             </p>
           </div>
@@ -93,10 +93,10 @@ export function RegisterPage() {
 
             {/* Role selector */}
             <div>
-              <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Mendaftar sebagai
               </label>
-              <div className="flex border border-gray-200 rounded-lg p-1 bg-gray-50">
+              <div className="flex border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-gray-50 dark:bg-gray-900/50">
                 {(["student", "lecturer"] as Role[]).map((r) => (
                   <button
                     key={r}
@@ -108,8 +108,8 @@ export function RegisterPage() {
                       transition-all duration-200 cursor-pointer
                       disabled:cursor-not-allowed
                       ${role === r
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "bg-transparent text-gray-500 hover:text-gray-700"
+                        ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                        : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                       }
                     `}
                   >
@@ -121,7 +121,7 @@ export function RegisterPage() {
 
             {/* Full Name */}
             <div>
-              <label htmlFor="reg-fullName" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="reg-fullName" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Nama Lengkap
               </label>
               <input
@@ -133,11 +133,11 @@ export function RegisterPage() {
                 required
                 disabled={isLoading}
                 className="
-                  w-full border border-gray-200 rounded-lg px-3.5 py-2 md:py-2.5
-                  text-sm text-gray-900 outline-none
+                  w-full border border-gray-200 dark:border-gray-800 rounded-lg px-3.5 py-2 md:py-2.5
+                  text-sm text-gray-900 dark:text-gray-100 outline-none
                   transition-[border-color,box-shadow] duration-200
                   focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
-                  placeholder:text-gray-400
+                  placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-gray-900
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
               />
@@ -145,7 +145,7 @@ export function RegisterPage() {
 
             {/* NIM / NIP */}
             <div>
-              <label htmlFor="reg-idNumber" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="reg-idNumber" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 {role === "student" ? "NIM" : "NIP"}
               </label>
               <input
@@ -157,11 +157,11 @@ export function RegisterPage() {
                 required
                 disabled={isLoading}
                 className="
-                  w-full border border-gray-200 rounded-lg px-3.5 py-2 md:py-2.5
-                  text-sm text-gray-900 outline-none
+                  w-full border border-gray-200 dark:border-gray-800 rounded-lg px-3.5 py-2 md:py-2.5
+                  text-sm text-gray-900 dark:text-gray-100 outline-none
                   transition-[border-color,box-shadow] duration-200
                   focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
-                  placeholder:text-gray-400
+                  placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-gray-900
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
               />
@@ -169,7 +169,7 @@ export function RegisterPage() {
 
             {/* Email */}
             <div>
-              <label htmlFor="reg-email" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="reg-email" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Email Universitas
               </label>
               <input
@@ -181,11 +181,11 @@ export function RegisterPage() {
                 required
                 disabled={isLoading}
                 className="
-                  w-full border border-gray-200 rounded-lg px-3.5 py-2 md:py-2.5
-                  text-sm text-gray-900 outline-none
+                  w-full border border-gray-200 dark:border-gray-800 rounded-lg px-3.5 py-2 md:py-2.5
+                  text-sm text-gray-900 dark:text-gray-100 outline-none
                   transition-[border-color,box-shadow] duration-200
                   focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
-                  placeholder:text-gray-400
+                  placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-gray-900
                   disabled:opacity-50 disabled:cursor-not-allowed
                 "
               />
@@ -193,7 +193,7 @@ export function RegisterPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="reg-password" className="block text-[13px] font-medium text-gray-700 mb-1.5">
+              <label htmlFor="reg-password" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                 Password
               </label>
               <div className="relative">
@@ -206,10 +206,10 @@ export function RegisterPage() {
                   disabled={isLoading}
                   minLength={8}
                   className="
-                    w-full border border-gray-200 rounded-lg pl-3.5 pr-11 py-2 md:py-2.5
-                    text-sm text-gray-900 outline-none
+                    w-full border border-gray-200 dark:border-gray-800 rounded-lg pl-3.5 pr-11 py-2 md:py-2.5
+                    text-sm text-gray-900 dark:text-gray-100 outline-none
                     transition-[border-color,box-shadow] duration-200
-                    focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
+                    focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10 bg-white dark:bg-gray-900
                     disabled:opacity-50 disabled:cursor-not-allowed
                   "
                 />
@@ -256,9 +256,9 @@ export function RegisterPage() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
             Sudah punya akun?{" "}
-            <Link to="/login" className="font-semibold text-gray-900 hover:underline">
+            <Link to="/login" className="font-semibold text-gray-900 dark:text-white hover:underline">
               Masuk di sini
             </Link>
           </p>
@@ -266,7 +266,7 @@ export function RegisterPage() {
       </div>
 
       {/* ── RIGHT PANEL: Brand / Illustration ── */}
-      <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden bg-[#FAFAFA] border-l border-gray-100">
+      <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden bg-[#FAFAFA] dark:bg-[#0A0A0A] border-l border-gray-100 dark:border-gray-900">
         <div
           className="absolute pointer-events-none"
           style={{
