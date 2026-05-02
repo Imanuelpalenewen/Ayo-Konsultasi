@@ -1,18 +1,60 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Sparkles, AlertCircle, Loader2 } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 type Role = "student" | "lecturer";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const { signIn } = useAuthActions();
+
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<Role>("student");
+  const [name, setName] = useState("");
+  const [idNumber, setIdNumber] = useState(""); // NIM or NIP
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (role === "student") navigate("/student");
-    else navigate("/lecturer");
+    setError(null);
+
+    if (password.length < 8) {
+      setError("Password minimal 8 karakter.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Pass ALL profile data as params — the Password provider's `profile`
+      // function + createOrUpdateUser callback in auth.ts handle everything.
+      // No separate createUserProfile mutation needed (avoids race condition).
+      await signIn("password", {
+        email,
+        password,
+        flow: "signUp",
+        name,
+        role,
+        nim: role === "student" ? idNumber : undefined,
+        nip: role === "lecturer" ? idNumber : undefined,
+      });
+
+      // Redirect to the appropriate dashboard
+      navigate(role === "student" ? "/student" : "/lecturer", { replace: true });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "";
+      if (message.toLowerCase().includes("already")) {
+        setError("Email ini sudah terdaftar. Silakan masuk.");
+      } else {
+        setError("Pendaftaran gagal. Silakan periksa data Anda dan coba lagi.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -22,7 +64,7 @@ export function RegisterPage() {
       <div className="flex w-full md:w-1/2 h-screen items-center justify-center px-6 md:px-12 bg-white">
         <div className="w-full max-w-sm">
 
-          {/* Logo — "Ayo Konsultasi" full yellow text, no box */}
+          {/* Logo wordmark */}
           <div className="mb-5">
             <span className="text-xl font-bold tracking-tight" style={{ color: "#EAB308" }}>
               Ayo Konsultasi
@@ -39,6 +81,14 @@ export function RegisterPage() {
             </p>
           </div>
 
+          {/* Error banner */}
+          {error && (
+            <div className="flex items-center gap-2 mb-3 px-3 py-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">
+              <AlertCircle size={15} className="shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:gap-4">
 
             {/* Role selector */}
@@ -52,13 +102,14 @@ export function RegisterPage() {
                     key={r}
                     type="button"
                     onClick={() => setRole(r)}
+                    disabled={isLoading}
                     className={`
                       flex-1 py-1.5 md:py-2 text-[13px] font-medium rounded-md
                       transition-all duration-200 cursor-pointer
-                      ${
-                        role === r
-                          ? "bg-white text-gray-900 shadow-sm"
-                          : "bg-transparent text-gray-500 hover:text-gray-700"
+                      disabled:cursor-not-allowed
+                      ${role === r
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "bg-transparent text-gray-500 hover:text-gray-700"
                       }
                     `}
                   >
@@ -70,93 +121,96 @@ export function RegisterPage() {
 
             {/* Full Name */}
             <div>
-              <label
-                htmlFor="reg-fullName"
-                className="block text-[13px] font-medium text-gray-700 mb-1.5"
-              >
+              <label htmlFor="reg-fullName" className="block text-[13px] font-medium text-gray-700 mb-1.5">
                 Nama Lengkap
               </label>
               <input
                 id="reg-fullName"
                 type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Masukkan nama lengkap"
                 required
+                disabled={isLoading}
                 className="
                   w-full border border-gray-200 rounded-lg px-3.5 py-2 md:py-2.5
                   text-sm text-gray-900 outline-none
                   transition-[border-color,box-shadow] duration-200
                   focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
                   placeholder:text-gray-400
+                  disabled:opacity-50 disabled:cursor-not-allowed
                 "
               />
             </div>
 
             {/* NIM / NIP */}
             <div>
-              <label
-                htmlFor="reg-idNumber"
-                className="block text-[13px] font-medium text-gray-700 mb-1.5"
-              >
+              <label htmlFor="reg-idNumber" className="block text-[13px] font-medium text-gray-700 mb-1.5">
                 {role === "student" ? "NIM" : "NIP"}
               </label>
               <input
                 id="reg-idNumber"
                 type="text"
+                value={idNumber}
+                onChange={(e) => setIdNumber(e.target.value)}
                 placeholder={role === "student" ? "Masukkan NIM" : "Masukkan NIP"}
                 required
+                disabled={isLoading}
                 className="
                   w-full border border-gray-200 rounded-lg px-3.5 py-2 md:py-2.5
                   text-sm text-gray-900 outline-none
                   transition-[border-color,box-shadow] duration-200
                   focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
                   placeholder:text-gray-400
+                  disabled:opacity-50 disabled:cursor-not-allowed
                 "
               />
             </div>
 
             {/* Email */}
             <div>
-              <label
-                htmlFor="reg-email"
-                className="block text-[13px] font-medium text-gray-700 mb-1.5"
-              >
+              <label htmlFor="reg-email" className="block text-[13px] font-medium text-gray-700 mb-1.5">
                 Email Universitas
               </label>
               <input
                 id="reg-email"
                 type="email"
-                placeholder={
-                  role === "student" ? "nama@student.unklab.ac.id" : "nama@unklab.ac.id"
-                }
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={role === "student" ? "nama@student.unklab.ac.id" : "nama@unklab.ac.id"}
                 required
+                disabled={isLoading}
                 className="
                   w-full border border-gray-200 rounded-lg px-3.5 py-2 md:py-2.5
                   text-sm text-gray-900 outline-none
                   transition-[border-color,box-shadow] duration-200
                   focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
                   placeholder:text-gray-400
+                  disabled:opacity-50 disabled:cursor-not-allowed
                 "
               />
             </div>
 
             {/* Password */}
             <div>
-              <label
-                htmlFor="reg-password"
-                className="block text-[13px] font-medium text-gray-700 mb-1.5"
-              >
+              <label htmlFor="reg-password" className="block text-[13px] font-medium text-gray-700 mb-1.5">
                 Password
               </label>
               <div className="relative">
                 <input
                   id="reg-password"
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
+                  minLength={8}
                   className="
                     w-full border border-gray-200 rounded-lg pl-3.5 pr-11 py-2 md:py-2.5
                     text-sm text-gray-900 outline-none
                     transition-[border-color,box-shadow] duration-200
                     focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
+                    disabled:opacity-50 disabled:cursor-not-allowed
                   "
                 />
                 <button
@@ -174,23 +228,31 @@ export function RegisterPage() {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              <p className="mt-1 text-[11px] text-gray-400">Minimal 8 karakter</p>
             </div>
 
             {/* Submit */}
             <button
               type="submit"
+              disabled={isLoading}
               className="
                 w-full py-2.5 mt-0.5 rounded-lg
                 text-sm font-semibold text-white
                 transition-opacity duration-200 cursor-pointer
                 hover:opacity-90 active:scale-[0.99]
+                disabled:opacity-60 disabled:cursor-not-allowed
+                flex items-center justify-center gap-2
               "
-              style={{
-                backgroundColor: "#EAB308",
-                boxShadow: "0 2px 8px rgba(234,179,8,0.25)",
-              }}
+              style={{ backgroundColor: "#EAB308", boxShadow: "0 2px 8px rgba(234,179,8,0.25)" }}
             >
-              Daftar
+              {isLoading ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" />
+                  <span>Mendaftarkan...</span>
+                </>
+              ) : (
+                "Daftar"
+              )}
             </button>
           </form>
 
@@ -204,45 +266,28 @@ export function RegisterPage() {
       </div>
 
       {/* ── RIGHT PANEL: Brand / Illustration ── */}
-      {/* Hidden on mobile, visible md+ */}
       <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden bg-[#FAFAFA] border-l border-gray-100">
-        {/* Radial glow */}
         <div
           className="absolute pointer-events-none"
           style={{
-            width: "500px",
-            height: "500px",
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle, rgba(168,85,247,0.12) 0%, rgba(234,179,8,0.08) 40%, rgba(250,250,250,0) 70%)",
-            filter: "blur(40px)",
-            top: "50%",
-            left: "50%",
+            width: "500px", height: "500px", borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(168,85,247,0.12) 0%, rgba(234,179,8,0.08) 40%, rgba(250,250,250,0) 70%)",
+            filter: "blur(40px)", top: "50%", left: "50%",
             transform: "translate(-50%, -50%)",
           }}
         />
-
-        {/* Compact centered content block */}
         <div className="relative z-10 text-center max-w-sm w-full px-8">
-          {/* Glassmorphism icon */}
           <div className="flex justify-center mb-8">
             <div
               className="inline-flex items-center justify-center w-[72px] h-[72px] rounded-[20px] relative"
               style={{
-                background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 100%)",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 100%)",
                 backdropFilter: "blur(12px)",
-                boxShadow:
-                  "0 8px 32px rgba(168,85,247,0.12), inset 0 0 0 1px rgba(255,255,255,0.6)",
+                boxShadow: "0 8px 32px rgba(168,85,247,0.12), inset 0 0 0 1px rgba(255,255,255,0.6)",
               }}
             >
-              <div
-                className="absolute inset-0 rounded-[20px] pointer-events-none"
-                style={{
-                  background:
-                    "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)",
-                }}
-              />
+              <div className="absolute inset-0 rounded-[20px] pointer-events-none"
+                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)" }} />
               <svg width="0" height="0" className="absolute">
                 <defs>
                   <linearGradient id="brand-gradient-reg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -251,34 +296,19 @@ export function RegisterPage() {
                   </linearGradient>
                 </defs>
               </svg>
-              <Sparkles
-                size={32}
-                className="relative z-10"
-                style={{ stroke: "url(#brand-gradient-reg)" }}
-              />
+              <Sparkles size={32} className="relative z-10" style={{ stroke: "url(#brand-gradient-reg)" }} />
             </div>
           </div>
-
           <h2 className="text-[26px] font-bold text-gray-900 mb-3 tracking-tight">
             Mulai perjalanan akademis Anda
           </h2>
           <p className="text-[15px] text-gray-500 leading-relaxed">
-            Akses rekomendasi jadwal pintar dan nikmati kemudahan bimbingan
-            bersama dosen terbaik Anda.
+            Akses rekomendasi jadwal pintar dan nikmati kemudahan bimbingan bersama dosen terbaik Anda.
           </p>
-
-          {/* Feature pills */}
           <div className="flex flex-wrap justify-center gap-2 mt-6">
             {["AI Recommendation", "Real-time Booking", "Smart Matching"].map((tag) => (
-              <span
-                key={tag}
-                className="text-xs font-medium px-3 py-1 rounded-full text-gray-500"
-                style={{
-                  background: "rgba(255,255,255,0.8)",
-                  border: "1px solid rgba(0,0,0,0.06)",
-                  backdropFilter: "blur(4px)",
-                }}
-              >
+              <span key={tag} className="text-xs font-medium px-3 py-1 rounded-full text-gray-500"
+                style={{ background: "rgba(255,255,255,0.8)", border: "1px solid rgba(0,0,0,0.06)", backdropFilter: "blur(4px)" }}>
                 {tag}
               </span>
             ))}
