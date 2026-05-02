@@ -39,8 +39,8 @@ export function RegisterPage() {
         flow: "signUp",
         name,
         role,
-        nim: role === "student" ? idNumber : undefined,
-        nip: role === "lecturer" ? idNumber : undefined,
+        ...(role === "student" ? { nim: idNumber } : {}),
+        ...(role === "lecturer" ? { nip: idNumber } : {}),
       });
 
       // Redirect to the appropriate dashboard
