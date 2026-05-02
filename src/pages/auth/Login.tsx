@@ -10,7 +10,7 @@ type Role = "student" | "lecturer";
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { signIn, signOut } = useAuthActions();
+  const { signIn } = useAuthActions();
   const currentUser = useCurrentUser();
   const convex = useConvex();
 
