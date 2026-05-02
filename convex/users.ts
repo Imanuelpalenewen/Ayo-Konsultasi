@@ -110,3 +110,35 @@ export const getLecturers = query({
       .collect();
   },
 });
+
+/**
+ * Update the current user's profile information.
+ */
+export const updateProfile = mutation({
+  args: {
+    name: v.string(),
+    avatarUrl: v.optional(v.string()),
+    major: v.optional(v.string()),
+    expertise: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!profile) throw new Error("Profile not found");
+
+    await ctx.db.patch(profile._id, {
+      name: args.name,
+      avatarUrl: args.avatarUrl,
+      ...(args.major !== undefined ? { major: args.major } : {}),
+      ...(args.expertise !== undefined ? { expertise: args.expertise } : {}),
+    });
+
+    return { success: true };
+  },
+});

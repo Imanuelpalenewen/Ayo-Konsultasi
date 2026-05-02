@@ -4,6 +4,7 @@ import { RegisterPage } from "./pages/auth/Register";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
 import { LecturerDashboard } from "./pages/dashboard/LecturerDashboard";
+import { ProfilePage } from "./pages/profile/ProfilePage";
 
 function App() {
   return (
@@ -23,6 +24,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/student/profile"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected: Lecturer only */}
         <Route
@@ -30,6 +39,14 @@ function App() {
           element={
             <ProtectedRoute allowedRole="lecturer">
               <LecturerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/profile"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
