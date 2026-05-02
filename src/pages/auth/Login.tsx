@@ -51,7 +51,9 @@ export function LoginPage() {
               <input
                 id="login-email"
                 type="email"
-                placeholder="rina.s@student.unklab.ac.id"
+                placeholder={
+                  role === "student" ? "nama@student.unklab.ac.id" : "nama@unklab.ac.id"
+                }
                 required
                 className="
                   w-full border border-gray-200 rounded-lg px-3.5 py-2.5
