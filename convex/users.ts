@@ -120,6 +120,15 @@ export const updateProfile = mutation({
     avatarUrl: v.optional(v.string()),
     major: v.optional(v.string()),
     expertise: v.optional(v.array(v.string())),
+    availability: v.optional(
+      v.array(
+        v.object({
+          day: v.string(),
+          startTime: v.string(),
+          endTime: v.string(),
+        })
+      )
+    ),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -137,6 +146,7 @@ export const updateProfile = mutation({
       avatarUrl: args.avatarUrl,
       ...(args.major !== undefined ? { major: args.major } : {}),
       ...(args.expertise !== undefined ? { expertise: args.expertise } : {}),
+      ...(args.availability !== undefined ? { availability: args.availability } : {}),
     });
 
     return { success: true };

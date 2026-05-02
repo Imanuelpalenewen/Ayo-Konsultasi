@@ -8,8 +8,12 @@
  * @module
  */
 
+import type * as ai from "../ai.js";
 import type * as auth from "../auth.js";
+import type * as chat from "../chat.js";
+import type * as consultations from "../consultations.js";
 import type * as http from "../http.js";
+import type * as notifications from "../notifications.js";
 import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 
@@ -20,8 +24,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  ai: typeof ai;
   auth: typeof auth;
+  chat: typeof chat;
+  consultations: typeof consultations;
   http: typeof http;
+  notifications: typeof notifications;
   seed: typeof seed;
   users: typeof users;
 }>;
