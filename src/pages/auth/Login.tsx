@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Sparkles, AlertCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Loader2, Sparkles } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useConvex } from "convex/react";
@@ -21,12 +21,9 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If already logged in and not loading/error, redirect immediately
   React.useEffect(() => {
     if (currentUser && !isLoading && !error) {
-      navigate(currentUser.role === "student" ? "/student" : "/lecturer", {
-        replace: true,
-      });
+      navigate(currentUser.role === "student" ? "/student" : "/lecturer", { replace: true });
     }
   }, [currentUser, isLoading, error, navigate]);
 
@@ -36,38 +33,23 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      // 1. Validate role BEFORE signing in — one-shot query call (READ-ONLY)
       const validation = await convex.query(api.users.validateRole, { email, expectedRole: role });
 
       if (!validation.valid) {
         if (validation.reason === "role_mismatch") {
-          setError(
-            `Role tidak sesuai. Akun ini tidak terdaftar sebagai ${
-              role === "student" ? "Mahasiswa" : "Dosen"
-            }.`
-          );
+          setError(`Role tidak sesuai. Akun ini tidak terdaftar sebagai ${role === "student" ? "Mahasiswa" : "Dosen"}.`);
         } else {
-          // not_found -> generic error
           setError("Email atau password salah. Silakan coba lagi.");
         }
         setIsLoading(false);
         return;
       }
 
-      // 2. Role is valid — proceed to authenticate
       await signIn("password", { email, password, flow: "signIn" });
-      
-      // We do NOT navigate imperatively here.
-      // Instead, we let the useEffect above handle the redirection automatically
-      // once `currentUser` is fetched from Convex. This guarantees we don't
-      // redirect before the auth cookie/state is fully propagated, preventing
-      // the ProtectedRoute from kicking us back to /login.
-
     } catch (err: any) {
       console.error("Login error:", err);
-      // Check if it's a server configuration error (like missing JWKS)
       if (err?.message?.includes("JWKS") || err?.message?.includes("500")) {
-        setError("Terjadi kesalahan konfigurasi server (JWKS missing). Hubungi admin.");
+        setError("Terjadi kesalahan konfigurasi server. Hubungi admin.");
       } else {
         setError("Email atau password salah. Silakan coba lagi.");
       }
@@ -77,32 +59,29 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-950 transition-colors">
-
-      {/* ── LEFT PANEL: Form ── */}
-      <div className="flex w-full md:w-1/2 h-screen items-center justify-center px-6 md:px-12 bg-white dark:bg-gray-950">
-        <div className="w-full max-w-sm">
-
-          {/* Logo wordmark */}
-          <div className="mb-7">
-            <span className="text-xl font-bold tracking-tight" style={{ color: "#EAB308" }}>
-              Ayo Konsultasi
-            </span>
+    <div className="flex h-screen overflow-hidden bg-[#f0f4f8]">
+      {/* ── LEFT PANEL: Form Card ── */}
+      <div className="flex w-full md:w-[480px] h-screen items-center justify-center px-6 md:px-12">
+        <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 md:p-10">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5 mb-8">
+            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-sm">
+              <span className="text-primary-foreground font-bold text-sm">AK</span>
+            </div>
+            <span className="text-base font-bold text-gray-900">Ayo Konsultasi</span>
           </div>
 
           {/* Heading */}
           <div className="mb-7">
-            <h1 className="text-[22px] font-bold text-gray-900 dark:text-white tracking-tight mb-1">
-              Masuk
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              AI-assisted academic consultation system.
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Masuk</h1>
+            <p className="text-sm text-gray-500">
+              AI membantu menemukan dosen. Anda tetap menentukan keputusan.
             </p>
           </div>
 
           {/* Error banner */}
           {error && (
-            <div className="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">
+            <div className="flex items-center gap-2 mb-5 px-3 py-2.5 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600">
               <AlertCircle size={15} className="shrink-0" />
               <span>{error}</span>
             </div>
@@ -111,8 +90,8 @@ export function LoginPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Email */}
             <div>
-              <label htmlFor="login-email" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Email Universitas
+              <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Email kampus
               </label>
               <input
                 id="login-email"
@@ -122,20 +101,13 @@ export function LoginPage() {
                 placeholder={role === "student" ? "nama@student.unklab.ac.id" : "nama@unklab.ac.id"}
                 required
                 disabled={isLoading}
-                className="
-                  w-full border border-gray-200 dark:border-gray-800 rounded-lg px-3.5 py-2.5
-                  text-sm text-gray-900 dark:text-gray-100 outline-none
-                  transition-[border-color,box-shadow] duration-200
-                  focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10
-                  placeholder:text-gray-400 dark:placeholder:text-gray-600 bg-white dark:bg-gray-900
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                "
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 placeholder:text-gray-400 bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="login-password" className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-1.5">
                 Password
               </label>
               <div className="relative">
@@ -146,25 +118,12 @@ export function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="
-                    w-full border border-gray-200 dark:border-gray-800 rounded-lg pl-3.5 pr-11 py-2.5
-                    text-sm text-gray-900 dark:text-gray-100 outline-none
-                    transition-[border-color,box-shadow] duration-200
-                    focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/10 bg-white dark:bg-gray-900
-                    disabled:opacity-50 disabled:cursor-not-allowed
-                  "
+                  className="w-full border border-gray-200 rounded-xl pl-4 pr-12 py-3 text-sm text-gray-900 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
-                  className="
-                    absolute right-0 top-1/2 -translate-y-1/2
-                    flex items-center justify-center
-                    min-w-[44px] min-h-[44px]
-                    text-gray-400 hover:text-gray-600
-                    transition-colors duration-150
-                  "
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -173,25 +132,19 @@ export function LoginPage() {
 
             {/* Role selector */}
             <div>
-              <label className="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                Masuk sebagai
-              </label>
-              <div className="flex border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-gray-50 dark:bg-gray-900/50">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Masuk sebagai</label>
+              <div className="flex border border-gray-200 rounded-xl p-1 bg-gray-50">
                 {(["student", "lecturer"] as Role[]).map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => setRole(r)}
                     disabled={isLoading}
-                    className={`
-                      flex-1 py-2 text-[13px] font-medium rounded-md
-                      transition-all duration-200 cursor-pointer
-                      disabled:cursor-not-allowed
-                      ${role === r
-                        ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
-                        : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                      }
-                    `}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 cursor-pointer disabled:cursor-not-allowed ${
+                      role === r
+                        ? "bg-white text-gray-900 shadow-sm border border-gray-100"
+                        : "bg-transparent text-gray-500 hover:text-gray-700"
+                    }`}
                   >
                     {r === "student" ? "Mahasiswa" : "Dosen"}
                   </button>
@@ -203,15 +156,7 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="
-                w-full py-2.5 mt-1 rounded-lg
-                text-sm font-semibold text-white
-                transition-opacity duration-200 cursor-pointer
-                hover:opacity-90 active:scale-[0.99]
-                disabled:opacity-60 disabled:cursor-not-allowed
-                flex items-center justify-center gap-2
-              "
-              style={{ backgroundColor: "#EAB308", boxShadow: "0 2px 8px rgba(234,179,8,0.25)" }}
+              className="w-full py-3 mt-1 rounded-xl text-sm font-bold text-primary-foreground bg-primary transition-all hover:bg-primary/90 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md shadow-primary/20"
             >
               {isLoading ? (
                 <>
@@ -224,63 +169,71 @@ export function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-6 text-center text-sm text-gray-500">
             Belum punya akun?{" "}
-            <Link to="/register" className="font-semibold text-gray-900 dark:text-white hover:underline">
-              Daftar sekarang
+            <Link to="/register" className="font-semibold text-gray-900 hover:underline">
+              Daftar
             </Link>
           </p>
         </div>
       </div>
 
-      {/* ── RIGHT PANEL: Brand / Illustration ── */}
-      <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden bg-[#FAFAFA] dark:bg-[#0A0A0A] border-l border-gray-100 dark:border-gray-900">
+      {/* ── RIGHT PANEL ── */}
+      <div className="hidden md:flex flex-1 h-screen items-center justify-center relative overflow-hidden bg-[#f0f4f8]">
+
+        {/* Radial glow — absolute background */}
         <div
-          className="absolute pointer-events-none"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            width: "500px", height: "500px", borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(168,85,247,0.12) 0%, rgba(234,179,8,0.08) 40%, rgba(250,250,250,0) 70%)",
-            filter: "blur(40px)", top: "50%", left: "50%",
-            transform: "translate(-50%, -50%)",
+            backgroundImage: `radial-gradient(circle at 55% 40%, rgba(234,179,8,0.12) 0%, transparent 65%)`,
           }}
         />
-        <div className="relative z-10 text-center max-w-sm w-full px-8">
-          <div className="flex justify-center mb-8">
-            <div
-              className="inline-flex items-center justify-center w-[72px] h-[72px] rounded-[20px] relative"
-              style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 100%)",
-                backdropFilter: "blur(12px)",
-                boxShadow: "0 8px 32px rgba(168,85,247,0.12), inset 0 0 0 1px rgba(255,255,255,0.6)",
-              }}
-            >
-              <div className="absolute inset-0 rounded-[20px] pointer-events-none"
-                style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)" }} />
-              <svg width="0" height="0" className="absolute">
-                <defs>
-                  <linearGradient id="brand-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#A855F7" />
-                    <stop offset="100%" stopColor="#EAB308" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <Sparkles size={32} className="relative z-10" style={{ stroke: "url(#brand-gradient)" }} />
-            </div>
+
+        {/* Grid — absolute background, top area */}
+        <div
+          className="absolute top-0 inset-x-0 flex justify-center pt-10 opacity-90 pointer-events-none"
+        >
+          <div
+            className="grid gap-3"
+            style={{
+              gridTemplateColumns: "repeat(7, 56px)",
+              gridTemplateRows: "repeat(4, 56px)",
+            }}
+          >
+            {Array.from({ length: 28 }).map((_, i) => {
+              const colors = [
+                "bg-white border border-gray-100 shadow-sm",
+                "bg-white border border-gray-100 shadow-sm",
+                "bg-white border border-gray-100 shadow-sm",
+                "bg-primary/10 border border-primary/20",
+                "bg-primary/10 border border-primary/20",
+                "bg-purple-100/60 border border-purple-200/40",
+                "flex items-center justify-center bg-white border border-purple-100 shadow-sm",
+              ];
+              const pattern = [0,1,3,1,0,2,0,4,1,0,6,1,3,0,1,0,2,0,4,6,3,0,1,0,2,1,0,6];
+              const colorIdx = pattern[i % pattern.length];
+              const isPlus = colorIdx === 6;
+              return (
+                <div key={i} className={`rounded-2xl ${colors[colorIdx]}`}>
+                  {isPlus && <span className="text-base font-bold text-purple-400">✦</span>}
+                </div>
+              );
+            })}
           </div>
-          <h2 className="text-[26px] font-bold text-gray-900 mb-3 tracking-tight">
-            Lebih cepat. Lebih akurat.
+        </div>
+
+        {/* Text block — true center of panel */}
+        <div className="relative z-10 text-center px-10 max-w-sm">
+          <div className="inline-flex items-center gap-2 mb-5 bg-white/90 border border-gray-100 shadow-sm rounded-full px-4 py-1.5 backdrop-blur-sm">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
+            <span className="text-xs font-bold text-gray-500 tracking-widest uppercase">Asisten Akademik</span>
+          </div>
+          <h2 className="text-3xl font-extrabold text-gray-900 leading-snug mb-3">
+            Rekomendasi terlihat jelas, dapat diperiksa, dan selalu bisa dibatalkan.
           </h2>
-          <p className="text-[15px] text-gray-500 leading-relaxed">
-            Sistem mencocokkan jadwal dan keahlian untuk pengalaman konsultasi akademik yang lebih baik.
+          <p className="text-sm text-gray-400 leading-relaxed">
+            Didukung AI untuk membantu Anda menemukan dosen yang tepat.
           </p>
-          <div className="flex flex-wrap justify-center gap-2 mt-6">
-            {["AI Recommendation", "Real-time Booking", "Smart Matching"].map((tag) => (
-              <span key={tag} className="text-xs font-medium px-3 py-1 rounded-full text-gray-500"
-                style={{ background: "rgba(255,255,255,0.8)", border: "1px solid rgba(0,0,0,0.06)", backdropFilter: "blur(4px)" }}>
-                {tag}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
     </div>
