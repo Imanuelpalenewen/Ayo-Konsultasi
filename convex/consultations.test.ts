@@ -22,6 +22,7 @@ describe("Consultations Backend", () => {
         date: "2030-01-01",
         time: "10:00",
         topic: "Testing",
+        locationType: "online",
       })
     ).rejects.toThrow("Not authenticated");
   });
@@ -44,6 +45,7 @@ describe("Consultations Backend", () => {
         date: "2030-01-01",
         time: "10:00",
         topic: "Testing",
+        locationType: "online",
         status: "pending",
         createdAt: Date.now(),
         updatedAt: Date.now(),

@@ -66,6 +66,19 @@ export default defineSchema({
       v.literal("completed"),
       v.literal("cancelled")
     ),
+
+    // Required on all new bookings; optional only to allow pre-existing documents without the field
+    locationType: v.optional(v.union(v.literal("online"), v.literal("tatap_muka"))),
+    // "Google Meet" | "Zoom" for online; free-text location for tatap_muka
+    locationDetail: v.optional(v.string()),
+    // Auto-generated when lecturer accepts an online booking
+    meetLink: v.optional(v.string()),
+
+    // Reassign trail — populated by reassignConsultation (Task 9)
+    reassignedFrom: v.optional(v.id("users")),
+    reassignedTo: v.optional(v.id("users")),
+    reassignReason: v.optional(v.string()),
+
     createdAt: v.number(),
     updatedAt: v.number(),
   })

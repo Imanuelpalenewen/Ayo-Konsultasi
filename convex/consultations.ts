@@ -10,6 +10,8 @@ export const createConsultation = mutation({
     time: v.string(),
     topic: v.string(),
     notes: v.optional(v.string()),
+    locationType: v.union(v.literal("online"), v.literal("tatap_muka")),
+    locationDetail: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const studentId = await getAuthUserId(ctx);
@@ -27,6 +29,8 @@ export const createConsultation = mutation({
       time: args.time,
       topic: args.topic,
       notes: args.notes,
+      locationType: args.locationType,
+      locationDetail: args.locationDetail,
       status: "pending",
       createdAt: Date.now(),
       updatedAt: Date.now(),
