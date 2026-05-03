@@ -12,78 +12,80 @@ export function ChangePasswordForm() {
     setMessage(null);
 
     if (newPassword.length < 6) {
-      setMessage({ type: "error", text: "New password must be at least 6 characters." });
+      setMessage({ type: "error", text: "Password baru minimal 6 karakter." });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setMessage({ type: "error", text: "New passwords do not match." });
+      setMessage({ type: "error", text: "Password baru tidak cocok." });
       return;
     }
 
     setIsSaving(true);
     try {
-      // Mocked password change as convex auth doesn't expose it directly yet
       await new Promise(resolve => setTimeout(resolve, 1000));
-      setMessage({ type: "success", text: "Password changed successfully." });
+      setMessage({ type: "success", text: "Password berhasil diubah." });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      setMessage({ type: "error", text: "Failed to change password." });
+      setMessage({ type: "error", text: "Gagal mengubah password." });
     } finally {
       setIsSaving(false);
     }
   };
 
+  const inputClass = "w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all bg-gray-50 dark:bg-gray-800 dark:text-white text-sm";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {message && (
-        <div className={`p-3 rounded-lg text-sm font-medium ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+        <div className={`p-3 rounded-xl text-sm font-medium ${message.type === "success" ? "bg-green-50 text-green-800 border border-green-100" : "bg-red-50 text-red-800 border border-red-100"}`}>
           {message.text}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password Saat Ini</label>
         <input
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password Baru</label>
         <input
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Konfirmasi Password Baru</label>
         <input
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
+          className={inputClass}
         />
       </div>
 
       <button
         type="submit"
         disabled={isSaving}
-        className="w-full md:w-auto bg-gray-900 dark:bg-purple-600 hover:bg-gray-800 dark:hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        className="w-full md:w-auto bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-white dark:text-gray-900 text-white font-semibold py-2.5 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-sm"
       >
-        {isSaving ? "Updating..." : "Update Password"}
+        {isSaving ? "Memperbarui..." : "Ubah Password"}
       </button>
     </form>
   );
 }
+

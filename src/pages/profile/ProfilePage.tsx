@@ -1,6 +1,7 @@
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { ProfileForm } from "../../components/profile/ProfileForm";
 import { ChangePasswordForm } from "../../components/profile/ChangePasswordForm";
+import { AvailabilityForm } from "../../components/profile/AvailabilityForm";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 export function ProfilePage() {
@@ -17,8 +18,8 @@ export function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Sidebar / Avatar Area */}
           <div className="md:col-span-1 space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 text-center transition-colors">
-              <div className="w-32 h-32 mx-auto rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-700 dark:text-purple-400 font-bold text-4xl border-4 border-purple-200 dark:border-purple-800 overflow-hidden mb-4 shadow-inner">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6 text-center transition-colors">
+              <div className="w-32 h-32 mx-auto rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-4xl border-4 border-primary/20 overflow-hidden mb-4 shadow-inner">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
@@ -51,8 +52,8 @@ export function ProfilePage() {
 
           {/* Forms Area */}
           <div className="md:col-span-2 space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden transition-colors">
-              <div className="p-5 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden transition-colors">
+              <div className="p-5 border-b border-gray-100 dark:border-gray-800">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Personal Information</h3>
               </div>
               <div className="p-5">
@@ -60,14 +61,25 @@ export function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden transition-colors">
-              <div className="p-5 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden transition-colors">
+              <div className="p-5 border-b border-gray-100 dark:border-gray-800">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Security</h3>
               </div>
               <div className="p-5">
                 <ChangePasswordForm />
               </div>
             </div>
+
+            {user?.role === "lecturer" && (
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden transition-colors">
+                <div className="p-5 border-b border-gray-100 dark:border-gray-800">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Weekly Availability</h3>
+                </div>
+                <div className="p-5">
+                  <AvailabilityForm />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
