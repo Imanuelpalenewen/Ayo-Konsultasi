@@ -416,10 +416,22 @@ export function BookingPage() {
               <div className="absolute inset-0 bg-primary blur-2xl opacity-20 rounded-full animate-pulse" />
               <Sparkles className="w-10 h-10 text-primary animate-pulse relative z-10" />
             </div>
-            <p className="text-base font-medium text-gray-800 dark:text-white">
+            <p className="text-base font-medium text-gray-800 dark:text-white transition-all">
               {LOADING_MESSAGES[loadingMsgIdx]}
             </p>
-            <p className="text-xs text-gray-400">Biasanya membutuhkan 5–10 detik</p>
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex gap-1">
+                {LOADING_MESSAGES.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`block w-1.5 h-1.5 rounded-full transition-all duration-500 ${
+                      i === loadingMsgIdx ? "bg-primary scale-125" : "bg-gray-200 dark:bg-gray-700"
+                    }`}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 mt-1">Biasanya membutuhkan 5–10 detik</p>
+            </div>
           </div>
         )}
 

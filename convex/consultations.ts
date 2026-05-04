@@ -132,6 +132,66 @@ export const getLecturerRequests = query({
   },
 });
 
+export const getConsultationById = query({
+  args: { consultationId: v.id("consultations") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.consultationId);
+  },
+});
+
+export const reassignConsultation = mutation({
+  args: {
+    consultationId: v.id("consultations"),
+    newLecturerId: v.id("users"),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const consultation = await ctx.db.get(args.consultationId);
+    if (!consultation) throw new Error("Consultation not found");
+    if (consultation.lecturerId !== userId) throw new Error("Unauthorized");
+
+    await ctx.db.patch(args.consultationId, {
+      lecturerId: args.newLecturerId,
+      status: "pending",
+      reassignedFrom: userId,
+      reassignedTo: args.newLecturerId,
+      reassignReason: args.reason,
+      updatedAt: Date.now(),
+    });
+
+    const reassigningLecturerProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    const newLecturerProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", args.newLecturerId))
+      .unique();
+
+    // Notify student
+    await ctx.runMutation(internal.notifications.createNotification, {
+      userId: consultation.studentId,
+      type: "booking_reassigned",
+      message: `Konsultasi Anda tentang "${consultation.topic}" telah dialihkan ke ${newLecturerProfile?.name || "dosen lain"} oleh ${reassigningLecturerProfile?.name || "dosen"}.`,
+      relatedId: consultation._id,
+    });
+
+    // Notify new lecturer
+    await ctx.runMutation(internal.notifications.createNotification, {
+      userId: args.newLecturerId,
+      type: "new_booking",
+      message: `Anda menerima permintaan konsultasi yang dialihkan dari ${reassigningLecturerProfile?.name || "dosen lain"} tentang "${consultation.topic}".`,
+      relatedId: consultation._id,
+    });
+
+    return { success: true };
+  },
+});
+
 export const getStudentHistory = query({
   args: {},
   handler: async (ctx) => {
