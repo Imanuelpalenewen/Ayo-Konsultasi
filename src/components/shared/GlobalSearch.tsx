@@ -66,9 +66,10 @@ export function GlobalSearch() {
     const pages = user?.role === "student"
       ? [
           { title: "Beranda", href: "/student", subtitle: "Dashboard mahasiswa" },
-          { title: "Rekomendasi AI", href: "/student/find-lecturer", subtitle: "Cari dosen dengan AI" },
-          { title: "Booking Konsultasi", href: "/student/book", subtitle: "Buat jadwal baru" },
+          { title: "Booking Konsultasi", href: "/student/book", subtitle: "Cari dosen dengan AI & buat jadwal" },
+          { title: "Rekomendasi AI", href: "/student/ai-recommendation", subtitle: "Lihat rekomendasi dan status konsultasi" },
           { title: "Riwayat", href: "/student/history", subtitle: "Histori konsultasi" },
+          { title: "Tanya AI", href: "/student/chat", subtitle: "Chat dengan asisten UNKLAB" },
           { title: "Profil", href: "/student/profile", subtitle: "Pengaturan akun" },
         ]
       : [
@@ -194,7 +195,7 @@ export function GlobalSearch() {
 
       {/* Dropdown results */}
       {isOpen && query.trim() && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-[200] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-200 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
           {results.length === 0 ? (
             <div className="flex flex-col items-center py-10 px-4 text-center">
               <Search className="w-8 h-8 text-gray-200 mb-3" />

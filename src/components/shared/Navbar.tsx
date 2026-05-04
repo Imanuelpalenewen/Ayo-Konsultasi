@@ -1,9 +1,11 @@
-import { Menu, Moon, Sun } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
+import { Menu, Moon, Sun } from "lucide-react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import { NotificationBell } from "./NotificationBell";
 import { GlobalSearch } from "./GlobalSearch";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 interface NavbarProps {
   onOpenSidebar: () => void;
@@ -11,7 +13,6 @@ interface NavbarProps {
 
 function getBreadcrumb(pathname: string, role: string) {
   const base = role === "student" ? "Mahasiswa" : "Dosen";
-  if (pathname.includes("/find-lecturer")) return `${base} / Rekomendasi AI`;
   if (pathname.includes("/book")) return `${base} / Booking Konsultasi`;
   if (pathname.includes("/history")) return `${base} / Riwayat`;
   if (pathname.includes("/profile")) return `${base} / Profil`;
@@ -25,12 +26,19 @@ export function Navbar({ onOpenSidebar }: NavbarProps) {
   const location = useLocation();
   const breadcrumb = getBreadcrumb(location.pathname, user?.role || "student");
 
-  const initials = user?.name
-    ?.split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() || "U";
+  // Resolve avatar URL (handles both storageId and legacy HTTP URLs)
+  const resolvedAvatar = useQuery(
+    api.users.resolveStorageUrl,
+    user !== undefined ? { storageId: user?.avatarUrl ?? null } : "skip"
+  );
+
+  const initials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "U";
 
   return (
     <header className="flex items-center justify-between h-16 px-4 md:px-8 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 transition-colors">
@@ -47,7 +55,7 @@ export function Navbar({ onOpenSidebar }: NavbarProps) {
         </span>
       </div>
 
-      {/* Center: Functional Global Search */}
+      {/* Center: Global Search */}
       <div className="hidden md:flex items-center flex-1 mx-8">
         <GlobalSearch />
       </div>
@@ -64,18 +72,26 @@ export function Navbar({ onOpenSidebar }: NavbarProps) {
 
         <NotificationBell />
 
-        {/* Avatar → clickable to profile */}
+        {/* Avatar → clickable to profile, updates instantly when avatar changes */}
         <Link
           to={user?.role === "student" ? "/student/profile" : "/lecturer/profile"}
           className="flex items-center gap-2.5 pl-2 border-l border-gray-100 dark:border-gray-800 ml-1 hover:opacity-80 transition-opacity"
           title="Buka Profil"
         >
-          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-sm">
-            {initials}
+          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-sm overflow-hidden">
+            {resolvedAvatar ? (
+              <img src={resolvedAvatar} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="hidden md:flex flex-col">
-            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-tight">{user?.name?.split(" ")[0] || "User"}</span>
-            <span className="text-xs text-gray-400 dark:text-gray-500 capitalize">{user?.role === "student" ? "Mahasiswa" : "Dosen"}</span>
+            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-tight">
+              {user?.name?.split(" ")[0] || "User"}
+            </span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 capitalize">
+              {user?.role === "student" ? "Mahasiswa" : "Dosen"}
+            </span>
           </div>
         </Link>
       </div>

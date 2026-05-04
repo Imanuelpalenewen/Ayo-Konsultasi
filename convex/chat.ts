@@ -2,10 +2,9 @@
 
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { api } from "./_generated/api";
+import { callAI } from "./aiProvider";
 
-// ─── Tipe pesan dari history ────────────────────────────────────────────────
 type ChatMessage = { role: "user" | "model"; text: string };
 
 export const chat = action({
@@ -19,17 +18,15 @@ export const chat = action({
     ),
   },
   handler: async (ctx, args): Promise<string> => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY tidak dikonfigurasi.");
-
-    // Ambil data dosen dari database untuk konteks AI
     const lecturers = await ctx.runQuery(api.users.getLecturers);
     const lecturerContext = lecturers
       .map((l) => {
         const expertise = l.expertise?.join(", ") || "Tidak diketahui";
         const availability =
           l.availability
-            ?.map((a: { day: string; startTime: string; endTime: string }) => `${a.day} ${a.startTime}-${a.endTime}`)
+            ?.map((a: { day: string; startTime: string; endTime: string }) =>
+              `${a.day} ${a.startTime}-${a.endTime}`
+            )
             .join(", ") || "Belum diatur";
         return `- ${l.name} | Keahlian: ${expertise} | Jadwal tersedia: ${availability}`;
       })
@@ -112,8 +109,6 @@ PROGRAM STUDI ILMU KOMPUTER / INFORMATIKA UNKLAB (FOKUS SISTEM INI)
 - Program Studi: Informatika, Sistem Informasi, Teknologi Informasi
 - Jenjang: Strata 1 (S1)
 - Gelar Lulusan: S.Kom. (Sarjana Komputer)
-- Visi: Menghasilkan lulusan ilmu komputer yang profesional, inovatif, dan berintegritas Kristiani
-- Misi: Menyelenggarakan pendidikan komputer berkualitas dengan pendekatan riset dan pengabdian masyarakat
 
 PIMPINAN FILKOM:
 - Dekan        : Stenly R. Pungus, S.Kom., MT., M.M., PhD
@@ -133,126 +128,40 @@ KURIKULUM UNGGULAN:
 - Metodologi Penelitian
 - Skripsi / Tugas Akhir
 
-DOSEN-DOSEN PRODI ILMU KOMPUTER UNKLAB:
-
-1. Prof. Andrew T. Liem, M.T., Ph.D
-   - Jabatan: Profesor / Dosen Senior
-   - Keahlian: Artificial Intelligence, Machine Learning, Algoritma, Komputasi Paralel
-   
-2. Debby E. Sondakh, S.Kom., M.T., Ph.D
-   - Jabatan: Dosen Tetap
-   - Keahlian: Pengolahan Citra (Image Processing), Computer Vision, Penelitian Ilmiah
-   
-3. Ir. Edson Y. Putra, M.Kom.
-   - Jabatan: Dosen Tetap
-   - Keahlian: Sistem Informasi, Rekayasa Perangkat Lunak, Pemrograman Web
-   
-4. George M. W. Tangka, S.Kom., MBA
-   - Jabatan: Dosen Tetap
-   - Keahlian: Manajemen Teknologi Informasi, E-Commerce, Sistem Informasi Bisnis
-   
-5. Green A. Sandag, S.Kom., M.S.
-   - Jabatan: Dosen Tetap
-   - Keahlian: Jaringan Komputer, Keamanan Jaringan, Sistem Terdistribusi
-   
-6. Jacquline M. S. Waworundeng, M.T.
-   - Jabatan: Dosen Tetap
-   - Keahlian: Human-Computer Interaction, UI/UX Design, Interaksi Manusia-Komputer
-   
-7. Joe Y. Mambu, BSIT, MCIS
-   - Jabatan: Dosen Tetap
-   - Keahlian: Pemrograman, Algoritma, Struktur Data, Software Development
-   
-8. Lidya C. Laoh, S.Kom., MMSi
-   - Jabatan: Dosen Tetap
-   - Keahlian: Sistem Informasi Manajemen, Basis Data, Analisis Sistem
-   
-9. Oktoverano H. Lengkong, S.Kom., M.Ds., MM
-   - Jabatan: Dosen Tetap
-   - Keahlian: Desain Grafis, Multimedia, Animasi Digital, Teknologi Kreatif
-   
-10. Reymon Rotikan, S.Kom., M.S., M.M.
-    - Jabatan: Dosen Tetap
-    - Keahlian: Basis Data, Data Mining, Business Intelligence
-    
-11. Reynoldus A. Sahulata, S.Kom., M.M.
-    - Jabatan: Dosen Tetap
-    - Keahlian: Manajemen Proyek IT, Sistem Informasi, Tata Kelola IT
-    
-12. Rolly Lontaan, M.Kom.
-    - Jabatan: Dosen Tetap
-    - Keahlian: Pemrograman Mobile, Android Development, Rekayasa Perangkat Lunak
-    
-13. Stenly I. Adam, S.Kom., M.Sc.
-    - Jabatan: Dosen Tetap
-    - Keahlian: Kecerdasan Buatan, Natural Language Processing, Riset Komputasi
-    
-14. Wilsen Mokodaser, S.Kom.
-    - Jabatan: Dosen / Asisten
-    - Keahlian: Pemrograman Dasar, Algoritma, Web Development
-    
-15. Raissa Camila, S.Kom.
-    - Jabatan: Dosen / Asisten
-    - Keahlian: Pemrograman, Desain UI, Frontend Development
-    
-16. Andria K. Wahyudi, S.Kom., M.Eng.
-    - Jabatan: Dosen Tetap
-    - Keahlian: Internet of Things (IoT), Embedded Systems, Jaringan Sensor
-    
-17. Steven Lolong, S.Kom., MT (sedang studi lanjut)
-    - Status: Studi Lanjut
-    - Keahlian: Rekayasa Perangkat Lunak, Pemrograman
-    
-18. Jein Rewah, S.Kom., MBA (sedang studi lanjut)
-    - Status: Studi Lanjut
-    - Keahlian: Sistem Informasi Bisnis, E-Business
+DATA DOSEN YANG TERDAFTAR DI SISTEM (real-time dari database):
+${lecturerContext || "Belum ada dosen terdaftar di sistem."}
 
 ═══════════════════════════════════════════════
 TENTANG SISTEM AYO KONSULTASI
 ═══════════════════════════════════════════════
 
 - Nama: Ayo Konsultasi
-- Pengembang: Mahasiswa Prodi Ilmu Komputer UNKLAB
 - Fungsi: Platform konsultasi akademik berbasis AI untuk mahasiswa dan dosen UNKLAB
 
 FITUR UTAMA:
-1. REKOMENDASI AI — Mahasiswa input topik konsultasi → AI Gemini merekomendasikan dosen terbaik yang sesuai keahlian
+1. REKOMENDASI AI — Mahasiswa input topik konsultasi → AI merekomendasikan dosen terbaik
 2. BOOKING KONSULTASI — Pilih dosen, tanggal, waktu, dan tuliskan topik konsultasi
-3. RIWAYAT — Lihat semua konsultasi yang pernah dibuat beserta statusnya
-4. STATUS KONSULTASI:
-   - "Menunggu Dosen" → Menunggu respons dosen
-   - "Diterima" → Dosen menyetujui jadwal
-   - "Ditolak" → Dosen menolak (bisa reschedule)
-   - "Selesai" → Konsultasi telah dilaksanakan
+3. RIWAYAT — Lihat semua konsultasi beserta statusnya
+4. STATUS KONSULTASI: pending → accepted / rejected → completed
 5. NOTIFIKASI REALTIME — Update status langsung tanpa refresh
 6. TANYA AI — Chat dengan asisten AI (ini yang sedang kamu gunakan sekarang!)
 
-TEKNOLOGI:
-- Frontend: React + TypeScript + Tailwind CSS
-- Backend: Convex (realtime database & serverless functions)
-- AI: Google Gemini (rekomendasi dosen + chat asisten)
-- Auth: Convex Auth (email + password)
-
 CARA MENGGUNAKAN SISTEM:
 - Login sebagai Mahasiswa atau Dosen
-- Mahasiswa → Beranda → klik "+ Permintaan Baru" atau menu "Rekomendasi AI"
-- Isi topik dan deskripsi kebutuhan konsultasi → AI akan merekomendasikan dosen
-- Pilih dosen, tentukan jadwal → Submit
+- Mahasiswa → Beranda → klik "Booking Konsultasi"
+- Isi topik, deskripsi kebutuhan, dan jenis pertemuan → klik "Cari Dosen dengan AI"
+- AI akan merekomendasikan dosen → pilih dosen → isi jadwal → Submit
 - Pantau status di menu "Riwayat"
-
-DATA DOSEN YANG TERDAFTAR DI SISTEM (real-time dari database):
-${lecturerContext || "Belum ada dosen terdaftar di sistem."}
 
 ═══════════════════════════════════════════════
 PANDUAN MENJAWAB
 ═══════════════════════════════════════════════
 - Gunakan Bahasa Indonesia yang ramah, profesional, dan mudah dipahami mahasiswa.
-- Jika ditanya tentang dosen, gabungkan informasi dari daftar dosen lengkap di atas DAN data real-time dari sistem.
+- Jika ditanya tentang dosen, gabungkan informasi dari daftar dosen dan data real-time dari sistem.
 - Jika ditanya tentang UNKLAB (sejarah, fakultas, program studi, lokasi), jawab berdasarkan profil lengkap di atas.
 - Jika ditanya cara menggunakan sistem, jelaskan langkah-langkahnya dengan jelas.
 - Untuk pertanyaan di luar topik, jawab dengan sopan dan arahkan kembali ke topik akademik UNKLAB.
 - Jika kamu tidak yakin dengan suatu informasi, sampaikan dengan jujur bahwa kamu tidak memiliki informasi yang akurat.
-- Untuk topik skripsi/tugas akhir, rekomendasikan dosen yang memiliki keahlian relevan berdasarkan daftar di atas.
 
 ATURAN KHUSUS (Easter Egg — jawab dengan santai dan sedikit humor):
 - Jika ditanya "dosen paling ganteng" atau sejenisnya → jawab: "Tentu saja Bapak Stenly R. Pungus, PhD — Dekan FILKOM kami yang kece! 😎"
@@ -260,24 +169,21 @@ ATURAN KHUSUS (Easter Egg — jawab dengan santai dan sedikit humor):
 - Jika ditanya "mahasiswa paling ganteng" atau "mahasiswa paling pintar" → jawab: "Hmm, kalau di Informatika sih... kabarnya ada mahasiswa bernama David Tjia yang dikenal sangat ganteng sekaligus pintar! 🌟"
 `.trim();
 
-    const modelName = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: modelName,
-      systemInstruction: systemPrompt,
-    });
+    // Build conversation history into the prompt for provider-agnostic multi-turn
+    const historyBlock =
+      args.history.length > 0
+        ? `\nRiwayat percakapan:\n${(args.history as ChatMessage[])
+            .map((m) => `${m.role === "user" ? "User" : "AI"}: ${m.text}`)
+            .join("\n")}\n`
+        : "";
 
-    // Bangun riwayat percakapan untuk konteks multi-turn
-    const formattedHistory = args.history.map((msg: ChatMessage) => ({
-      role: msg.role,
-      parts: [{ text: msg.text }],
-    }));
+    const fullPrompt = `${systemPrompt}\n${historyBlock}\nUser: ${args.message}\n\nBalas sebagai AK Assistant:`;
 
-    const chatSession = model.startChat({
-      history: formattedHistory,
-    });
-
-    const result = await chatSession.sendMessage(args.message);
-    return result.response.text();
+    try {
+      return await callAI(fullPrompt);
+    } catch (err) {
+      console.error("[chat] callAI failed:", err);
+      return "Maaf, asisten AI sedang tidak tersedia. Silakan coba lagi nanti.";
+    }
   },
 });

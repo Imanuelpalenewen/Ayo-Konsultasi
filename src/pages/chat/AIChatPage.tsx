@@ -260,8 +260,9 @@ export function AIChatPage() {
               )}
             </button>
           </div>
-          <p className="text-center text-[10px] text-gray-300 dark:text-gray-700 mt-2">
-            Tekan <kbd className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-[10px]">Enter</kbd> untuk kirim · <kbd className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-[10px]">Shift+Enter</kbd> untuk baris baru
+          <p className="text-center text-[10px] text-gray-400 dark:text-gray-500 mt-2">
+            Tekan <kbd className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-1.5 rounded border border-gray-200 dark:border-gray-600 text-[10px]">Enter</kbd> untuk kirim ·{" "}
+            <kbd className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-1.5 rounded border border-gray-200 dark:border-gray-600 text-[10px]">Shift+Enter</kbd> untuk baris baru
           </p>
         </div>
       </div>

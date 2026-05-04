@@ -2,8 +2,8 @@
 
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { api } from "./_generated/api";
+import { callAI } from "./aiProvider";
 
 export const recommendLecturers = action({
   args: {
@@ -12,24 +12,14 @@ export const recommendLecturers = action({
     preferredDates: v.string(),
   },
   handler: async (ctx, args) => {
-    // Fetch all lecturers from the database
     const lecturers = await ctx.runQuery(api.users.getLecturers);
 
-    // Filter out those with no expertise set, maybe? Or send all.
-    const lecturerData = lecturers.map(l => ({
-      id: l.userId, // use userId so we can book
+    const lecturerData = lecturers.map((l) => ({
+      id: l.userId,
       name: l.name,
       expertise: l.expertise || [],
       availability: l.availability || [],
     }));
-
-    // Initialize Gemini
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY environment variable not set");
-
-    const modelName = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = `
 You are an academic consultation assistant. Given a student's consultation need and a list of lecturers with their expertise and availability, return the top 3 best-matched lecturers.
@@ -53,20 +43,30 @@ Format:
     "suggestedSlots": ["Monday 09:00", "Tuesday 10:00"]
   }
 ]
-`;
+`.trim();
 
     try {
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-      
-      // Clean the response just in case the model returns markdown
-      const cleaned = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
-      
-      const parsed = JSON.parse(cleaned);
-      return parsed;
+      const responseText = await callAI(prompt);
+      console.log("[ai:recommendLecturers] Raw response:", responseText.slice(0, 300));
+
+      // Strip any markdown code fences the model may have included
+      const cleaned = responseText
+        .replace(/```json\s*/gi, "")
+        .replace(/```\s*/g, "")
+        .trim();
+
+      // Find the JSON array in the response (model sometimes adds prose)
+      const arrayStart = cleaned.indexOf("[");
+      const arrayEnd = cleaned.lastIndexOf("]");
+      if (arrayStart === -1 || arrayEnd === -1) {
+        console.error("[ai:recommendLecturers] No JSON array found in response:", cleaned);
+        throw new Error("Response did not contain a JSON array.");
+      }
+      const jsonStr = cleaned.slice(arrayStart, arrayEnd + 1);
+      return JSON.parse(jsonStr);
     } catch (error) {
-      console.error("AI Recommendation failed:", error);
-      throw new Error("Failed to generate recommendations. Please try again.");
+      console.error("[ai:recommendLecturers] Failed:", error);
+      throw new Error("Gagal menghasilkan rekomendasi. Silakan coba lagi.");
     }
   },
 });

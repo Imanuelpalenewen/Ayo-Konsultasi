@@ -1,6 +1,7 @@
-import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { action, mutation, query } from "./_generated/server";
+import { getAuthUserId, retrieveAccount, modifyAccountCredentials } from "@convex-dev/auth/server";
 import { v } from "convex/values";
+import { api } from "./_generated/api";
 
 /**
  * Validate that a user's chosen role matches their actual profile role
@@ -147,6 +148,92 @@ export const updateProfile = mutation({
       ...(args.major !== undefined ? { major: args.major } : {}),
       ...(args.expertise !== undefined ? { expertise: args.expertise } : {}),
       ...(args.availability !== undefined ? { availability: args.availability } : {}),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Resolves a Convex storageId to a public download URL.
+ * Also handles legacy HTTP avatarUrls so the UI doesn't need to branch.
+ * useStorageUrl does not exist in convex@1.36 — this query is the correct replacement.
+ */
+export const resolveStorageUrl = query({
+  args: { storageId: v.union(v.string(), v.null()) },
+  handler: async (ctx, args) => {
+    if (!args.storageId) return null;
+    if (args.storageId.startsWith("http")) return args.storageId;
+    try {
+      // storageId is a string at runtime; cast satisfies the Id<"_storage"> type.
+      return await ctx.storage.getUrl(args.storageId as any);
+    } catch {
+      return null;
+    }
+  },
+});
+
+/**
+ * Returns a Convex storage pre-signed URL for direct file upload from the browser.
+ * The client POSTs the file to this URL, then calls updateAvatar with the storageId.
+ */
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+/**
+ * Saves a Convex storageId to the user's avatarUrl field.
+ * Frontend resolves the display URL via useStorageUrl(storageId).
+ */
+export const updateAvatar = mutation({
+  args: { storageId: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+    if (!profile) throw new Error("Profile not found");
+    await ctx.db.patch(profile._id, { avatarUrl: args.storageId });
+    return { success: true };
+  },
+});
+
+/**
+ * Change the current user's password via Convex Auth.
+ * Must be an action — retrieveAccount and modifyAccountCredentials require action context.
+ * Flow: verify current password → update to new password (auto-hashed by provider).
+ * Pressman traceability: US-03 (security)
+ */
+export const changePassword = action({
+  args: {
+    currentPassword: v.string(),
+    newPassword: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    // Get the user's email — used as the account ID for the Password provider
+    const profile = await ctx.runQuery(api.users.getCurrentUser);
+    if (!profile) throw new Error("User profile not found");
+
+    // Verify current password — throws ConvexError if incorrect
+    await retrieveAccount(ctx, {
+      provider: "password",
+      account: { id: profile.email, secret: args.currentPassword },
+    });
+
+    // Update to new password — provider handles hashing automatically
+    await modifyAccountCredentials(ctx, {
+      provider: "password",
+      account: { id: profile.email, secret: args.newPassword },
     });
 
     return { success: true };

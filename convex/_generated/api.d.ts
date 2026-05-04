@@ -9,6 +9,7 @@
  */
 
 import type * as ai from "../ai.js";
+import type * as aiProvider from "../aiProvider.js";
 import type * as auth from "../auth.js";
 import type * as chat from "../chat.js";
 import type * as consultations from "../consultations.js";
@@ -25,6 +26,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   ai: typeof ai;
+  aiProvider: typeof aiProvider;
   auth: typeof auth;
   chat: typeof chat;
   consultations: typeof consultations;

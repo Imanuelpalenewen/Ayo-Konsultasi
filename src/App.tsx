@@ -5,8 +5,8 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
 import { LecturerDashboard } from "./pages/dashboard/LecturerDashboard";
 import { ProfilePage } from "./pages/profile/ProfilePage";
-import { FindLecturer } from "./pages/consultation/FindLecturer";
 import { BookingPage } from "./pages/consultation/BookingPage";
+import { AIRecommendationPage } from "./pages/consultation/AIRecommendationPage";
 import { HistoryPage } from "./pages/consultation/History";
 import { AIChatPage } from "./pages/chat/AIChatPage";
 import { NotFoundPage, ServerErrorPage, ForbiddenPage } from "./pages/errors/ErrorPage";
@@ -42,17 +42,21 @@ function App() {
         />
         <Route
           path="/student/find-lecturer"
-          element={
-            <ProtectedRoute allowedRole="student">
-              <FindLecturer />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/student/book" replace />}
         />
         <Route
           path="/student/book"
           element={
             <ProtectedRoute allowedRole="student">
               <BookingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/ai-recommendation"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <AIRecommendationPage />
             </ProtectedRoute>
           }
         />

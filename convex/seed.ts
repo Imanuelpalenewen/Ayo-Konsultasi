@@ -32,7 +32,7 @@ export const seedTestAccounts = action({
     ];
 
     const accounts = [
-      // ── Dosen UNKLAB Prodi Ilmu Komputer ──────────────────────────────────
+      // ── Dosen UNKLAB Prodi Ilmu Komputer 
       {
         name: "Prof. Andrew T. Liem, M.T., Ph.D",
         email: "andrew.liem@unklab.ac.id",
