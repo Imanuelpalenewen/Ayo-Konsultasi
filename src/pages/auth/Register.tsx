@@ -34,13 +34,13 @@ export function RegisterPage() {
       // function + createOrUpdateUser callback in auth.ts handle everything.
       // No separate createUserProfile mutation needed (avoids race condition).
       await signIn("password", {
-        email,
+        email: email.toLowerCase().trim(),
         password,
         flow: "signUp",
-        name,
+        name: name.trim(),
         role,
-        ...(role === "student" ? { nim: idNumber } : {}),
-        ...(role === "lecturer" ? { nip: idNumber } : {}),
+        ...(role === "student" ? { nim: idNumber.trim() } : {}),
+        ...(role === "lecturer" ? { nip: idNumber.trim() } : {}),
       });
 
       // Redirect to the appropriate dashboard

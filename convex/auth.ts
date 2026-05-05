@@ -27,7 +27,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
        */
       profile(params) {
         return {
-          email: params.email as string,
+          email: (params.email as string).toLowerCase().trim(),
           name: (params.name as string | undefined) ?? "",
           // Custom app fields passed from Register form:
           // These land in `profile` inside createOrUpdateUser ↓

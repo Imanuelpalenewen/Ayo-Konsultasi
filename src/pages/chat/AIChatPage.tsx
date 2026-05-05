@@ -19,6 +19,12 @@ const SUGGESTED_QUESTIONS = [
   { icon: HelpCircle, text: "Apa keahlian dosen-dosen yang terdaftar?" },
 ];
 
+const LOADING_MESSAGES = [
+  "AI sedang berpikir...",
+  "Mengumpulkan informasi...",
+  "Menyusun jawaban...",
+];
+
 function TypingDots() {
   return (
     <div className="flex items-center gap-1 py-1 px-1">
@@ -37,6 +43,7 @@ export function AIChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -46,6 +53,16 @@ export function AIChatPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
+
+  // Cycle loading messages while waiting for AI response.
+  useEffect(() => {
+    if (!isLoading) return;
+    setLoadingMsgIdx(0);
+    const interval = setInterval(() => {
+      setLoadingMsgIdx((i) => (i + 1) % LOADING_MESSAGES.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleSend = async (text?: string) => {
     const messageText = (text ?? input).trim();
@@ -220,8 +237,16 @@ export function AIChatPage() {
               <div className="w-8 h-8 rounded-full bg-gray-700 dark:bg-gray-600 shrink-0 flex items-center justify-center mt-0.5">
                 <Bot className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                <TypingDots />
+              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex flex-col gap-1.5 min-w-55">
+                <div className="flex items-center gap-2">
+                  <TypingDots />
+                  <span className="text-sm text-gray-700 dark:text-gray-300 font-medium transition-opacity">
+                    {LOADING_MESSAGES[loadingMsgIdx]}
+                  </span>
+                </div>
+                <span className="text-[11px] text-gray-400 dark:text-gray-500">
+                  Biasanya 3–8 detik
+                </span>
               </div>
             </div>
           )}

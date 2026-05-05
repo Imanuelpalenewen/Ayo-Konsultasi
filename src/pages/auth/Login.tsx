@@ -33,7 +33,8 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      const validation = await convex.query(api.users.validateRole, { email, expectedRole: role });
+      const normalizedEmail = email.toLowerCase().trim();
+      const validation = await convex.query(api.users.validateRole, { email: normalizedEmail, expectedRole: role });
 
       if (!validation.valid) {
         if (validation.reason === "role_mismatch") {
@@ -45,7 +46,7 @@ export function LoginPage() {
         return;
       }
 
-      await signIn("password", { email, password, flow: "signIn" });
+      await signIn("password", { email: normalizedEmail, password, flow: "signIn" });
     } catch (err: any) {
       console.error("Login error:", err);
       if (err?.message?.includes("JWKS") || err?.message?.includes("500")) {
