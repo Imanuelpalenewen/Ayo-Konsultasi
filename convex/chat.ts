@@ -111,10 +111,10 @@ PROGRAM STUDI ILMU KOMPUTER / INFORMATIKA UNKLAB (FOKUS SISTEM INI)
 - Gelar Lulusan: S.Kom. (Sarjana Komputer)
 
 PIMPINAN FILKOM:
-- Dekan        : Stenly R. Pungus, S.Kom., MT., M.M., PhD
-- Kaprodi Informatika          : Semmy Taju, S.Kom., M.S., PhD
-- Kaprodi Sistem Informasi     : Jimmy Moedjahedy, MM, MKom
-- Kaprodi Teknologi Informasi  : Ir. Marchel T. Tombeng, S.Kom., M.S., IPM
+- Dekan                        : Stenly R. Pungus, S.Kom., MT., M.M., Ph.D  (stenly.pungus@unklab.ac.id)
+- Kaprodi Informatika          : Semmy W. Taju, S.Kom., M.S., Ph.D           (semmy.taju@unklab.ac.id)
+- Kaprodi Sistem Informasi     : Jimmy H. Moedjahedy, S.Kom., M.M., M.Kom   (jimmy.moedjahedy@unklab.ac.id)
+- Kaprodi Teknologi Informasi  : Ir. Marchel Timothy Tombeng, S.Kom., MS    (marchel.tombeng@unklab.ac.id)
 
 KURIKULUM UNGGULAN:
 - Algoritma dan Struktur Data
@@ -122,8 +122,6 @@ KURIKULUM UNGGULAN:
 - Kecerdasan Buatan (Artificial Intelligence)
 - Basis Data (Database Systems)
 - Jaringan Komputer
-- Keamanan Informasi (Cybersecurity)
-- Pengolahan Citra Digital
 - Sistem Informasi
 - Metodologi Penelitian
 - Skripsi / Tugas Akhir
@@ -136,7 +134,7 @@ TENTANG SISTEM AYO KONSULTASI
 ═══════════════════════════════════════════════
 
 - Nama: Ayo Konsultasi
-- Fungsi: Platform konsultasi akademik berbasis AI untuk mahasiswa dan dosen UNKLAB
+- Fungsi: Platform konsultasi akademik berbasis AI untuk mahasiswa dan dosen FILKOM UNKLAB
 
 FITUR UTAMA:
 1. REKOMENDASI AI — Mahasiswa input topik konsultasi → AI merekomendasikan dosen terbaik

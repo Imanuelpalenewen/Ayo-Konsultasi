@@ -5,19 +5,15 @@ import type { Id } from "./_generated/dataModel";
 import { createAccount } from "@convex-dev/auth/server";
 
 /**
- * Seed testing accounts for development.
+ * Seed official UNKLAB lecturer and student accounts for development/demo.
  *
- * Test Accounts:
- *   Student → student.test@student.unklab.ac.id / student67
+ * Lecturer password: dosen123
+ * Student password:  student123
  *
- * Dosen UNKLAB Prodi Ilmu Komputer:
- *   andrew.liem@unklab.ac.id / dosen123
- *   debby.sondakh@unklab.ac.id / dosen123
- *   ... (semua dosen di bawah)
- *
- * HOW TO RUN (one-time, never auto-runs on deploy):
+ * HOW TO RUN (run clearLecturers first to remove stale data):
+ *   npx convex run seed:clearLecturers
  *   npx convex run seed:seedTestAccounts
- *   — OR — Convex Dashboard → Functions → seed → seedTestAccounts → Run
+ *   — OR — Convex Dashboard → Functions → seed → Run
  *
  * Pressman traceability: US-01, US-02 (reliability / test coverage)
  * Security: passwords are hashed by Convex Auth — never stored plain-text.
@@ -25,184 +21,522 @@ import { createAccount } from "@convex-dev/auth/server";
 export const seedTestAccounts = action({
   args: {},
   handler: async (ctx) => {
-    const defaultAvailability = [
-      { day: "monday", startTime: "09:00", endTime: "12:00" },
-      { day: "wednesday", startTime: "13:00", endTime: "15:00" },
-      { day: "friday", startTime: "10:00", endTime: "14:00" },
-    ];
+    // Aturan ketersediaan UNKLAB (universitas Advent):
+    // - Sabtu: TIDAK tersedia (Sabbath)
+    // - Jumat malam (≥18:00): TIDAK tersedia
+    // - Jumat sore: max endTime 16:00
+    // - Minggu: tersedia (siang/sore, 09:00–16:00)
+    // - Pimpinan (Dekan + 3 Kaprodi): hanya 2 hari (sibuk)
+    // - Dosen lain: 2–3 hari, jam bervariasi tapi masuk akal
 
     const accounts = [
-      // ── Dosen UNKLAB Prodi Ilmu Komputer 
+      // ── Dosen UNKLAB FILKOM (24 orang, data resmi Datadummy.xlsx) ──────────
+
+      // PIMPINAN — hanya 2 hari karena jabatan struktural
       {
-        name: "Prof. Andrew T. Liem, M.T., Ph.D",
+        name: "Stenly R. Pungus, S.Kom., MT., M.M., Ph.D",
+        email: "stenly.pungus@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "198501012010011000",
+        expertise: ["Dean", "Software Engineering", "Thesis Supervision", "Research Methodology"],
+        availability: [
+          { day: "monday", startTime: "09:00", endTime: "11:00" },
+          { day: "wednesday", startTime: "13:00", endTime: "15:00" },
+        ],
+      },
+      {
+        name: "Semmy W. Taju, S.Kom., M.S., Ph.D",
+        email: "semmy.taju@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "197912152008011002",
+        expertise: ["Head of Informatics", "AI", "Machine Learning", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "10:00", endTime: "12:00" },
+          { day: "friday", startTime: "09:00", endTime: "11:00" },
+        ],
+      },
+      {
+        name: "Jimmy H. Moedjahedy, S.Kom., M.M., M.Kom",
+        email: "jimmy.moedjahedy@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "198307212011012003",
+        expertise: ["Head of Information Systems", "Web Development", "Computer Networks", "Thesis Supervision"],
+        availability: [
+          { day: "wednesday", startTime: "09:00", endTime: "11:00" },
+          { day: "friday", startTime: "08:00", endTime: "10:00" },
+        ],
+      },
+      {
+        name: "Ir. Marchel Timothy Tombeng, S.Kom., MS",
+        email: "marchel.tombeng@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "197805062007011004",
+        expertise: ["Head of Information Technology", "Web Development", "Database Management", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "13:00", endTime: "15:00" },
+          { day: "wednesday", startTime: "10:00", endTime: "12:00" },
+        ],
+      },  
+
+      // DOSEN REGULER 
+      {
+        name: "Prof. Andrew T. Liem, S.Si., MT., Ph.D",
         email: "andrew.liem@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-001",
-        expertise: ["Artificial Intelligence", "Machine Learning", "Algoritma", "Komputasi Paralel"],
-        availability: defaultAvailability,
+        nip: "198912112015012005",
+        expertise: ["Informatics", "Computer Networks", "Software Engineering", "System Analysis and Design", "AI", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "09:00", endTime: "12:00" },
+          { day: "wednesday", startTime: "09:00", endTime: "11:00" },
+          { day: "thursday", startTime: "14:00", endTime: "16:00" },
+        ],
       },
       {
         name: "Debby E. Sondakh, S.Kom., M.T., Ph.D",
         email: "debby.sondakh@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-002",
-        expertise: ["Image Processing", "Computer Vision", "Pengolahan Citra Digital", "Penelitian Ilmiah"],
-        availability: defaultAvailability,
+        nip: "198104092009011006",
+        expertise: ["Informatics", "Data Analytics", "Research Methodology", "Automata", "Proposal Writing", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "09:00", endTime: "11:30" },
+          { day: "thursday", startTime: "13:00", endTime: "15:30" },
+        ],
       },
       {
-        name: "Ir. Edson Y. Putra, M.Kom.",
+        name: "Ir. Edson Y. Putra, M.Kom",
         email: "edson.putra@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-003",
-        expertise: ["Sistem Informasi", "Rekayasa Perangkat Lunak", "Pemrograman Web", "Basis Data"],
-        availability: defaultAvailability,
+        nip: "198606172012012007",
+        expertise: ["Information Systems", "Database Management", "Computer Ethics", "Project Capstone", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "10:00", endTime: "12:00" },
+          { day: "thursday", startTime: "13:00", endTime: "16:00" },
+        ],
       },
       {
-        name: "George M. W. Tangka, S.Kom., MBA",
-        email: "george.tangka@unklab.ac.id",
-        password: "dosen123",
-        role: "lecturer" as const,
-        nip: "UNKLAB-004",
-        expertise: ["Manajemen Teknologi Informasi", "E-Commerce", "Sistem Informasi Bisnis", "Kewirausahaan Digital"],
-        availability: defaultAvailability,
-      },
-      {
-        name: "Green A. Sandag, S.Kom., M.S.",
-        email: "green.sandag@unklab.ac.id",
-        password: "dosen123",
-        role: "lecturer" as const,
-        nip: "UNKLAB-005",
-        expertise: ["Jaringan Komputer", "Keamanan Jaringan", "Sistem Terdistribusi", "Network Engineering"],
-        availability: defaultAvailability,
-      },
-      {
-        name: "Jacquline M. S. Waworundeng, M.T.",
-        email: "jacquline.waworundeng@unklab.ac.id",
-        password: "dosen123",
-        role: "lecturer" as const,
-        nip: "UNKLAB-006",
-        expertise: ["Human-Computer Interaction", "UI/UX Design", "Interaksi Manusia-Komputer", "Desain Antarmuka"],
-        availability: defaultAvailability,
-      },
-      {
-        name: "Joe Y. Mambu, BSIT, MCIS",
-        email: "joe.mambu@unklab.ac.id",
-        password: "dosen123",
-        role: "lecturer" as const,
-        nip: "UNKLAB-007",
-        expertise: ["Pemrograman", "Algoritma", "Struktur Data", "Software Development", "Skripsi"],
-        availability: defaultAvailability,
-      },
-      {
-        name: "Lidya C. Laoh, S.Kom., MMSi",
-        email: "lidya.laoh@unklab.ac.id",
-        password: "dosen123",
-        role: "lecturer" as const,
-        nip: "UNKLAB-008",
-        expertise: ["Sistem Informasi Manajemen", "Basis Data", "Analisis Sistem", "Database Administration"],
-        availability: defaultAvailability,
-      },
-      {
-        name: "Oktoverano H. Lengkong, S.Kom., M.Ds., MM",
+        name: "Oktoverano H. Lengkong, S.Kom., M.Ds., M.M.",
         email: "oktoverano.lengkong@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-009",
-        expertise: ["Desain Grafis", "Multimedia", "Animasi Digital", "Teknologi Kreatif", "UI Design"],
-        availability: defaultAvailability,
+        nip: "197711252006011008",
+        expertise: ["Information Technology", "Web Development", "UI/UX Design", "Graphic Design", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "13:00", endTime: "15:00" },
+          { day: "friday", startTime: "09:00", endTime: "11:00" },
+          { day: "sunday", startTime: "14:00", endTime: "16:00" },
+        ],
       },
       {
-        name: "Reymon Rotikan, S.Kom., M.S., M.M.",
-        email: "reymon.rotikan@unklab.ac.id",
+        name: "Green Ferry Mandias, S.Kom., M.Cs., M.M",
+        email: "green.mandias@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-010",
-        expertise: ["Basis Data", "Data Mining", "Business Intelligence", "Skripsi", "Metodologi Penelitian"],
-        availability: defaultAvailability,
+        nip: "199001032016012009",
+        expertise: ["Informatics", "Database Management", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "13:00", endTime: "15:30" },
+          { day: "wednesday", startTime: "13:00", endTime: "15:00" },
+          { day: "friday", startTime: "10:00", endTime: "12:00" },
+        ],
+      },
+      {
+        name: "Green A. Sandag, S.Kom., M.S",
+        email: "green.sandag@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "198208142010011010",
+        expertise: ["Informatics", "Artificial Intelligence", "Natural Language Processing", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "10:00", endTime: "12:00" },
+          { day: "thursday", startTime: "09:00", endTime: "11:00" },
+          { day: "friday", startTime: "13:00", endTime: "15:30" },
+        ],
+      },
+      {
+        name: "Jacquline M. Waworundeng, S.T., M.T",
+        email: "jacquline.waworundeng@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "198711192013012011",
+        expertise: ["Informatics", "Robotics", "Internet of Things", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "08:00", endTime: "10:00" },
+          { day: "wednesday", startTime: "13:00", endTime: "15:30" },
+        ],
       },
       {
         name: "Reynoldus A. Sahulata, S.Kom., M.M.",
         email: "reynoldus.sahulata@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-011",
-        expertise: ["Manajemen Proyek IT", "Sistem Informasi", "Tata Kelola IT", "Project Management"],
-        availability: defaultAvailability,
+        nip: "198203152009011012",
+        expertise: ["Information Systems", "Management Information Systems", "IT Governance", "Automata", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "13:00", endTime: "15:00" },
+          { day: "thursday", startTime: "10:00", endTime: "12:00" },
+          { day: "sunday", startTime: "10:00", endTime: "12:00" },
+        ],
       },
       {
-        name: "Rolly Lontaan, M.Kom.",
-        email: "rolly.lontaan@unklab.ac.id",
+        name: "Joe Y. Y. Mambu, B.IT., MCIS",
+        email: "joe.mambu@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-012",
-        expertise: ["Pemrograman Mobile", "Android Development", "Rekayasa Perangkat Lunak", "Skripsi"],
-        availability: defaultAvailability,
+        nip: "197909082007012013",
+        expertise: ["Information Systems", "Enterprise Resource Planning (ERP)", "Thesis Supervision"],
+        availability: [
+          { day: "wednesday", startTime: "09:00", endTime: "11:00" },
+          { day: "thursday", startTime: "14:00", endTime: "16:00" },
+        ],
       },
       {
-        name: "Stenly I. Adam, S.Kom., M.Sc.",
-        email: "stenly.adam@unklab.ac.id",
+        name: "Lidya C. Laoh, S.Kom, M.Msi",
+        email: "lidya.laoh@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-013",
-        expertise: ["Kecerdasan Buatan", "Natural Language Processing", "Riset Komputasi", "Deep Learning"],
-        availability: defaultAvailability,
+        nip: "198611232012011014",
+        expertise: ["Information Systems", "Data Structures", "Computer Programming", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "09:00", endTime: "11:00" },
+          { day: "thursday", startTime: "13:00", endTime: "15:00" },
+          { day: "friday", startTime: "10:00", endTime: "12:00" },
+        ],
       },
       {
-        name: "Wilsen Mokodaser, S.Kom.",
+        name: "Wilsen Grivin Mokodaser, S.Kom., M.Kom",
         email: "wilsen.mokodaser@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-014",
-        expertise: ["Pemrograman Dasar", "Algoritma", "Web Development", "JavaScript"],
-        availability: defaultAvailability,
+        nip: "197512302005011015",
+        expertise: ["Informatics", "Computer Networks", "Computer Ethics", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "10:00", endTime: "12:00" },
+          { day: "wednesday", startTime: "14:00", endTime: "16:00" },
+        ],
       },
       {
-        name: "Raissa Camila, S.Kom.",
-        email: "raissa.camila@unklab.ac.id",
+        name: "Reymon Rotikan, S.Kom., M.S., M.M.",
+        email: "reymon.rotikan@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-015",
-        expertise: ["Pemrograman", "Frontend Development", "Desain UI", "React"],
-        availability: defaultAvailability,
+        nip: "198907142014012016",
+        expertise: ["Information Systems", "Database Management", "Web Development", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "08:00", endTime: "10:00" },
+          { day: "thursday", startTime: "13:00", endTime: "15:30" },
+          { day: "friday", startTime: "09:00", endTime: "11:00" },
+        ],
       },
       {
-        name: "Andria K. Wahyudi, S.Kom., M.Eng.",
+        name: "Rolly J. Lontaan, S.Kom., M.Kom",
+        email: "rolly.lontaan@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "198001252008011017",
+        expertise: ["Informatics", "System Programming", "Visual Programming", "Calculus", "Internet of Things", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "10:00", endTime: "12:00" },
+          { day: "wednesday", startTime: "10:00", endTime: "12:30" },
+          { day: "friday", startTime: "09:00", endTime: "11:00" },
+        ],
+      },
+      {
+        name: "Stenly I. Adam, S.Kom., M.Sc",
+        email: "stenly.adam@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "197811092006012018",
+        expertise: ["Informatics", "Mobile App Development", "Front End", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "09:00", endTime: "11:30" },
+          { day: "thursday", startTime: "09:00", endTime: "11:00" },
+          { day: "sunday", startTime: "10:00", endTime: "12:00" },
+        ],
+      },
+      {
+        name: "George M. W. Tangka, S.Kom., MBA",
+        email: "george.tangka@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "199102182017011019",
+        expertise: ["Information Systems", "Business Intelligence", "Data Analytics", "Management Information Systems", "Data Structure", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "13:00", endTime: "15:30" },
+          { day: "thursday", startTime: "13:00", endTime: "16:00" },
+        ],
+      },
+      {
+        name: "Andria K. Wahyudi, SKom, M.Eng",
         email: "andria.wahyudi@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-016",
-        expertise: ["Internet of Things (IoT)", "Embedded Systems", "Jaringan Sensor", "Mikrokontroler"],
-        availability: defaultAvailability,
+        nip: "198405062010012020",
+        expertise: ["Informatics", "Computer Graphic", "Game Development", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "13:00", endTime: "15:00" },
+          { day: "wednesday", startTime: "08:00", endTime: "10:00" },
+          { day: "friday", startTime: "10:00", endTime: "12:00" },
+        ],
       },
       {
-        name: "Steven Lolong, S.Kom., MT",
-        email: "steven.lolong@unklab.ac.id",
+        name: "Raissa Camila Maringka, S.Kom., M.Kom",
+        email: "raissa.maringka@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-017",
-        expertise: ["Rekayasa Perangkat Lunak", "Pemrograman", "Software Testing"],
-        availability: [], // sedang studi lanjut
+        nip: "198712212013011021",
+        expertise: ["Informatics", "Algorithms", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "09:00", endTime: "11:00" },
+          { day: "wednesday", startTime: "13:00", endTime: "15:30" },
+          { day: "sunday", startTime: "14:00", endTime: "16:00" },
+        ],
       },
       {
-        name: "Jein Rewah, S.Kom., MBA",
-        email: "jein.rewah@unklab.ac.id",
+        name: "Argha O. Silitonga, S.Kom., M.S",
+        email: "argha.silitonga@unklab.ac.id",
         password: "dosen123",
         role: "lecturer" as const,
-        nip: "UNKLAB-018",
-        expertise: ["Sistem Informasi Bisnis", "E-Business", "Manajemen"],
-        availability: [], // sedang studi lanjut
+        nip: "198305172009011023",
+        expertise: ["Informatics", "Machine Learning", "Mobile App Development", "Thesis Supervision"],
+        availability: [
+          { day: "monday", startTime: "13:00", endTime: "15:30" },
+          { day: "thursday", startTime: "10:00", endTime: "12:00" },
+        ],
+      },
+      {
+        name: "Regi F. Najoan, S.Kom., M.Kom",
+        email: "regi.najoan@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "197912082007012024",
+        expertise: ["Informatics", "Web Development", "Back End", "Thesis Supervision"],
+        availability: [
+          { day: "wednesday", startTime: "13:00", endTime: "15:30" },
+          { day: "friday", startTime: "10:00", endTime: "12:00" },
+          { day: "sunday", startTime: "13:00", endTime: "15:00" },
+        ],
+      },
+      {
+        name: "Julio Kolapitawondal, S.Kom., M.I",
+        email: "julio.kolapitawondal@unklab.ac.id",
+        password: "dosen123",
+        role: "lecturer" as const,
+        nip: "199104252018011025",
+        expertise: ["Information Technology", "Graphic Design", "Video Editing", "Animation", "UI/UX", "Thesis Supervision"],
+        availability: [
+          { day: "tuesday", startTime: "13:00", endTime: "15:00" },
+          { day: "thursday", startTime: "08:00", endTime: "10:30" },
+          { day: "friday", startTime: "13:00", endTime: "15:30" },
+        ],
       },
 
-      // ── Mahasiswa test ────────────────────────────────────────────────────
+      // Mahasiswa UNKLAB 24 orang
       {
-        name: "Anisa Putri",
-        email: "student.test@student.unklab.ac.id",
-        password: "student67",
+        name: "Noel Palenewen",
+        email: "s22310473@student.unklab.ac.id",
+        password: "student123",
         role: "student" as const,
         nim: "22051001",
+        major: "Informatics",
+      },
+      {
+        name: "Budi Pratama",
+        email: "s2222051002@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051002",
+        major: "Informatics",
+      },
+      {
+        name: "Citra Lestari",
+        email: "s2222051003@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051003",
+        major: "Informatics",
+      },
+      {
+        name: "Dimas Saputra",
+        email: "s2222051004@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051004",
+        major: "Information Systems",
+      },
+      {
+        name: "Tinusmar Sheptia",
+        email: "s2222051005@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051005",
+        major: "DKV",
+      },
+      {
+        name: "Nona Umboh",
+        email: "s2222051006@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051006",
+        major: "Informatics",
+      },
+      {
+        name: "Valerie Liogu",
+        email: "s2222051007@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051007",
+        major: "Informatics",
+      },
+      {
+        name: "Nobel Situmorang",
+        email: "s2222051008@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051008",
+        major: "Informatics",
+      },
+      {
+        name: "Septian Rantung",
+        email: "s2122051009@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051009",
+        major: "Information Systems",
+      },
+      {
+        name: "Intan Sari",
+        email: "s2222051010@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051010",
+        major: "Information Systems",
+      },
+      {
+        name: "Budi Marloy",
+        email: "s2222051011@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051011",
+        major: "Informatics",
+      },
+      {
+        name: "Kevin Sartono",
+        email: "s2222051012@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051012",
+        major: "Information Systems",
+      },
+      {
+        name: "Novian Susanto",
+        email: "s2222051013@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051013",
+        major: "DKV",
+      },
+      {
+        name: "Ivana Sondakh",
+        email: "s2222051014@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051014",
+        major: "Information Systems",
+      },
+      {
+        name: "Caren Kaunang",
+        email: "s2222051015@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051015",
+        major: "Information Systems",
+      },
+      {
+        name: "Lemmy Lengkong",
+        email: "s2222051016@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051016",
+        major: "Informatics",
+      },
+      {
+        name: "Dodi Gerungan",
+        email: "s2222051017@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051018",
+        major: "DKV",
+      },
+      {
+        name: "Marshel Lawitan",
+        email: "s2222051018@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051019",
+        major: "DKV",
+      },
+      {
+        name: "Adam Maengkong",
+        email: "s2222051019@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051017",
+        major: "Informatics",
+      },
+      {
+        name: "Stenly Pangelewen",
+        email: "s2222051020@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051020",
+        major: "Information Systems",
+      },
+      {
+        name: "Iman Permata Kandow",
+        email: "s2222051021@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051022",
+        major: "DKV",
+      },
+      {
+        name: "Jeremmiah Kuagow",
+        email: "s2122051022@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051023",
+        major: "Informatics",
+      },
+      {
+        name: "Andrew Lenzun",
+        email: "s2222051023@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051024",
+        major: "Information Systems",
+      },
+      {
+        name: "Marsel Wijaya",
+        email: "s2222051024@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051025",
+        major: "Informatics",
+      },
+      {
+        name: "Wilson Alow",
+        email: "s2222051025@student.unklab.ac.id",
+        password: "student123",
+        role: "student" as const,
+        nim: "22051026",
+        major: "Informatics",
       },
     ];
 
@@ -210,13 +544,11 @@ export const seedTestAccounts = action({
 
     for (const account of accounts) {
       try {
-        // createAccount must be called from an Action context (not a Mutation)
-        // It hashes the password via the Password provider crypto config
         const { user } = await createAccount(ctx, {
           provider: "password",
           account: {
-            id: account.email,       // email is the unique account ID
-            secret: account.password, // will be hashed internally
+            id: account.email,
+            secret: account.password,
           },
           profile: {
             email: account.email,
@@ -226,7 +558,6 @@ export const seedTestAccounts = action({
           shouldLinkViaEmail: false,
         });
 
-        // After the auth user is created, insert our custom profile
         await ctx.runMutation(internal.seed._upsertProfile, {
           userId: user._id as Id<"users">,
           email: account.email,
@@ -234,16 +565,14 @@ export const seedTestAccounts = action({
           role: account.role,
           nim: (account as any).nim,
           nip: (account as any).nip,
+          major: (account as any).major,
           expertise: (account as any).expertise,
           availability: (account as any).availability,
         });
 
-        results.push(
-          `✅ Created: ${account.email} / ${account.password} (${account.role})`
-        );
+        results.push(`✅ Created: ${account.email} (${account.role})`);
       } catch (e) {
         const msg = (e as Error).message ?? String(e);
-        // "Account already exists" is not a failure — skip gracefully
         if (msg.includes("already exists") || msg.includes("duplicate")) {
           results.push(`⚠️  Skipped (already exists): ${account.email}`);
         } else {
@@ -260,10 +589,8 @@ export const seedTestAccounts = action({
   },
 });
 
-
 /**
  * Internal mutation: create or update the userProfile for a seeded account.
- * Separated from the Action because DB writes must be in Mutations.
  */
 export const _upsertProfile = internalMutation({
   args: {
@@ -273,6 +600,7 @@ export const _upsertProfile = internalMutation({
     role: v.union(v.literal("student"), v.literal("lecturer")),
     nim: v.optional(v.string()),
     nip: v.optional(v.string()),
+    major: v.optional(v.string()),
     expertise: v.optional(v.array(v.string())),
     availability: v.optional(
       v.array(
@@ -291,11 +619,11 @@ export const _upsertProfile = internalMutation({
       .unique();
 
     if (existing) {
-      // Idempotent: update role/extra fields so re-running seed is safe
       await ctx.db.patch(existing._id, {
         role: args.role,
         nim: args.nim,
         nip: args.nip,
+        major: args.major,
         expertise: args.expertise,
         availability: args.availability,
       });
@@ -309,6 +637,7 @@ export const _upsertProfile = internalMutation({
       role: args.role,
       nim: args.nim,
       nip: args.nip,
+      major: args.major,
       expertise: args.expertise,
       availability: args.availability,
       createdAt: Date.now(),
@@ -322,7 +651,6 @@ export const _upsertProfile = internalMutation({
  *
  * HOW TO RUN:
  *   npx convex run seed:clearLecturers
- *   — OR — Convex Dashboard → Functions → seed → clearLecturers → Run
  */
 export const clearLecturers = internalMutation({
   args: {},
@@ -343,3 +671,30 @@ export const clearLecturers = internalMutation({
   },
 });
 
+/**
+ * Hapus semua data konsultasi dari database (termasuk notifikasi terkait).
+ * Berguna untuk membersihkan data dummy sebelum demo.
+ * HOW TO RUN:
+ *   npx convex run seed:clearConsultations
+ */
+export const clearConsultations = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const consultations = await ctx.db.query("consultations").collect();
+    let consultationCount = 0;
+    for (const c of consultations) {
+      await ctx.db.delete(c._id);
+      consultationCount++;
+    }
+
+    const notifications = await ctx.db.query("notifications").collect();
+    let notificationCount = 0;
+    for (const n of notifications) {
+      await ctx.db.delete(n._id);
+      notificationCount++;
+    }
+
+    console.log(`🗑️  Deleted ${consultationCount} consultations and ${notificationCount} notifications.`);
+    return { consultations: consultationCount, notifications: notificationCount };
+  },
+});
