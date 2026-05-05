@@ -192,6 +192,100 @@ export const reassignConsultation = mutation({
   },
 });
 
+/** Returns the Monday of the ISO week containing `now` at 00:00:00.000 UTC. */
+function getISOWeekBounds(now: Date): { monday: Date; sunday: Date } {
+  const day = now.getUTCDay() === 0 ? 7 : now.getUTCDay(); // Sun=7
+  const monday = new Date(now);
+  monday.setUTCDate(now.getUTCDate() - (day - 1));
+  monday.setUTCHours(0, 0, 0, 0);
+  const sunday = new Date(monday);
+  sunday.setUTCDate(monday.getUTCDate() + 6);
+  sunday.setUTCHours(23, 59, 59, 999);
+  return { monday, sunday };
+}
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** Real stats for the lecturer dashboard stat cards. */
+export const getLecturerStats = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return { pending: 0, acceptedThisWeek: 0, totalCompleted: 0 };
+
+    const all = await ctx.db
+      .query("consultations")
+      .withIndex("by_lecturer", (q) => q.eq("lecturerId", userId))
+      .collect();
+
+    const { monday, sunday } = getISOWeekBounds(new Date());
+
+    const inCurrentWeek = (dateStr: string) => {
+      const d = new Date(dateStr);
+      return d >= monday && d <= sunday;
+    };
+
+    return {
+      pending: all.filter((c) => c.status === "pending").length,
+      acceptedThisWeek: all.filter(
+        (c) => c.status === "accepted" && inCurrentWeek(c.date)
+      ).length,
+      totalCompleted: all.filter((c) => c.status === "completed").length,
+    };
+  },
+});
+
+/** Accepted consultations for the current ISO week grouped by day, with student name. */
+export const getLecturerWeeklySchedule = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
+    const { monday, sunday } = getISOWeekBounds(new Date());
+
+    const all = await ctx.db
+      .query("consultations")
+      .withIndex("by_lecturer", (q) => q.eq("lecturerId", userId))
+      .collect();
+
+    const thisWeek = all.filter(
+      (c) => c.status === "accepted" && (() => {
+        const d = new Date(c.date);
+        return d >= monday && d <= sunday;
+      })()
+    );
+
+    // Join student names
+    const withStudents = await Promise.all(
+      thisWeek.map(async (c) => {
+        const student = await ctx.db
+          .query("userProfiles")
+          .withIndex("by_userId", (q) => q.eq("userId", c.studentId))
+          .unique();
+        const dayIdx = new Date(c.date).getUTCDay();
+        return {
+          _id: c._id,
+          date: c.date,
+          time: c.time,
+          topic: c.topic,
+          dayName: DAY_NAMES[dayIdx],
+          studentName: student?.name ?? "Mahasiswa",
+        };
+      })
+    );
+
+    // Group into Mon–Fri skeleton (always return all 5 days)
+    const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+    return weekDays.map((day) => ({
+      day,
+      sessions: withStudents
+        .filter((s) => s.dayName === day)
+        .sort((a, b) => a.time.localeCompare(b.time)),
+    }));
+  },
+});
+
 export const getStudentHistory = query({
   args: {},
   handler: async (ctx) => {

@@ -4,6 +4,7 @@ import { RegisterPage } from "./pages/auth/Register";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
 import { LecturerDashboard } from "./pages/dashboard/LecturerDashboard";
+import { LecturerSchedulePage } from "./pages/dashboard/LecturerSchedulePage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
 import { BookingPage } from "./pages/consultation/BookingPage";
 import { AIRecommendationPage } from "./pages/consultation/AIRecommendationPage";
@@ -99,6 +100,14 @@ function App() {
           element={
             <ProtectedRoute allowedRole="lecturer">
               <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/schedule"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <LecturerSchedulePage />
             </ProtectedRoute>
           }
         />
