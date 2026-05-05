@@ -5,13 +5,12 @@ import { useUpdateProfile } from "../../hooks/useUpdateProfile";
 export function ProfileForm() {
   const user = useCurrentUser();
   const updateProfile = useUpdateProfile();
-  
+
   const [name, setName] = useState(user?.name || "");
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
   const [major, setMajor] = useState(user?.major || "");
   const [expertise, setExpertise] = useState(user?.expertise?.join(", ") || "");
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{type: "success" | "error", text: string} | null>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   if (!user) return null;
 
@@ -19,73 +18,79 @@ export function ProfileForm() {
     e.preventDefault();
     setIsSaving(true);
     setMessage(null);
-
     try {
       await updateProfile({
         name,
-        avatarUrl: avatarUrl || undefined,
         ...(user.role === "student" ? { major } : {}),
-        ...(user.role === "lecturer" ? { expertise: expertise.split(",").map(s => s.trim()).filter(Boolean) } : {}),
+        ...(user.role === "lecturer"
+          ? { expertise: expertise.split(",").map((s) => s.trim()).filter(Boolean) }
+          : {}),
       });
-      setMessage({ type: "success", text: "Profile updated successfully." });
-    } catch (err) {
-      setMessage({ type: "error", text: "Failed to update profile." });
+      setMessage({ type: "success", text: "Profil berhasil diperbarui." });
+    } catch {
+      setMessage({ type: "error", text: "Gagal memperbarui profil." });
     } finally {
       setIsSaving(false);
     }
   };
 
+  const inputClass =
+    "w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all bg-gray-50 dark:bg-gray-800 dark:text-white text-sm";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {message && (
-        <div className={`p-3 rounded-lg text-sm font-medium ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+        <div
+          className={`p-3 rounded-xl text-sm font-medium ${
+            message.type === "success"
+              ? "bg-green-50 text-green-800 border border-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800"
+              : "bg-red-50 text-red-800 border border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800"
+          }`}
+        >
           {message.text}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          Nama Lengkap
+        </label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Avatar URL</label>
-        <input
-          type="url"
-          value={avatarUrl}
-          onChange={(e) => setAvatarUrl(e.target.value)}
-          placeholder="https://example.com/avatar.jpg"
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
+          className={inputClass}
         />
       </div>
 
       {user.role === "student" && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Major</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Program Studi
+          </label>
           <input
             type="text"
             value={major}
             onChange={(e) => setMajor(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
+            placeholder="Informatika, Sistem Informasi..."
+            className={inputClass}
           />
         </div>
       )}
 
       {user.role === "lecturer" && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expertise (comma separated)</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            Keahlian{" "}
+            <span className="text-gray-400 font-normal">(pisahkan dengan koma)</span>
+          </label>
           <input
             type="text"
             value={expertise}
             onChange={(e) => setExpertise(e.target.value)}
-            placeholder="Machine Learning, Algorithms"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-700 dark:text-white"
+            placeholder="Machine Learning, Algoritma"
+            className={inputClass}
           />
         </div>
       )}
@@ -93,9 +98,9 @@ export function ProfileForm() {
       <button
         type="submit"
         disabled={isSaving}
-        className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-sm"
       >
-        {isSaving ? "Saving..." : "Save Changes"}
+        {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
       </button>
     </form>
   );

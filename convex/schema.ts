@@ -47,4 +47,57 @@ export default defineSchema({
     .index("by_userId", ["userId"])
     .index("by_email", ["email"])
     .index("by_role", ["role"]),
+
+  /**
+   * Consultations Table
+   * US-06, US-07, US-09
+   */
+  consultations: defineTable({
+    studentId: v.id("users"),
+    lecturerId: v.id("users"),
+    date: v.string(), // ISO date string "YYYY-MM-DD"
+    time: v.string(), // "HH:mm" format
+    topic: v.string(),
+    notes: v.optional(v.string()),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("accepted"),
+      v.literal("rejected"),
+      v.literal("completed"),
+      v.literal("cancelled")
+    ),
+
+    // Required on all new bookings; optional only to allow pre-existing documents without the field
+    locationType: v.optional(v.union(v.literal("online"), v.literal("tatap_muka"))),
+    // "Google Meet" | "Zoom" for online; free-text location for tatap_muka
+    locationDetail: v.optional(v.string()),
+    // Auto-generated when lecturer accepts an online booking
+    meetLink: v.optional(v.string()),
+
+    // Reassign trail — populated by reassignConsultation (Task 9)
+    reassignedFrom: v.optional(v.id("users")),
+    reassignedTo: v.optional(v.id("users")),
+    reassignReason: v.optional(v.string()),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_student", ["studentId"])
+    .index("by_lecturer", ["lecturerId"])
+    .index("by_status", ["status"]),
+
+  /**
+   * Notifications Table
+   * US-08
+   */
+  notifications: defineTable({
+    userId: v.id("users"),
+    type: v.string(), // e.g., "booking_accepted", "new_booking"
+    message: v.string(),
+    relatedId: v.optional(v.id("consultations")),
+    isRead: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_unread", ["userId", "isRead"]),
 });

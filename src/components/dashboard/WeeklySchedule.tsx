@@ -11,11 +11,11 @@ export function WeeklySchedule() {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden h-full flex flex-col transition-colors">
-      <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Weekly Schedule</h3>
-        <button className="text-sm text-purple-600 dark:text-purple-400 font-medium hover:underline cursor-pointer">
-          View Full Calendar
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden h-full flex flex-col transition-colors">
+      <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Jadwal Minggu Ini</h3>
+        <button className="text-sm text-primary font-semibold hover:underline cursor-pointer">
+          Lihat Lengkap
         </button>
       </div>
       <div className="flex-1 p-5 overflow-y-auto">

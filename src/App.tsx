@@ -5,12 +5,20 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
 import { LecturerDashboard } from "./pages/dashboard/LecturerDashboard";
 import { ProfilePage } from "./pages/profile/ProfilePage";
+import { BookingPage } from "./pages/consultation/BookingPage";
+import { AIRecommendationPage } from "./pages/consultation/AIRecommendationPage";
+import { HistoryPage } from "./pages/consultation/History";
+import { AIChatPage } from "./pages/chat/AIChatPage";
+import { NotFoundPage, ServerErrorPage, ForbiddenPage } from "./pages/errors/ErrorPage";
+
+import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public routes */}
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -32,6 +40,42 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/student/find-lecturer"
+          element={<Navigate to="/student/book" replace />}
+        />
+        <Route
+          path="/student/book"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <BookingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/ai-recommendation"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <AIRecommendationPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/history"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/chat"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <AIChatPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected: Lecturer only */}
         <Route
@@ -50,8 +94,32 @@ function App() {
             </ProtectedRoute>
           }
         />
-      </Routes>
-    </BrowserRouter>
+        <Route
+          path="/lecturer/history"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/chat"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <AIChatPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Error routes */}
+        <Route path="/404" element={<NotFoundPage />} />
+        <Route path="/500" element={<ServerErrorPage />} />
+        <Route path="/403" element={<ForbiddenPage />} />
+        {/* Catch-all → 404 */}
+        <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
