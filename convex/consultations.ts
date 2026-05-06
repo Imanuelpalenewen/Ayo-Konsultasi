@@ -296,6 +296,7 @@ export const getLecturerWeeklySchedule = query({
           dayName: DAY_NAMES[dayIdx],
           studentName: student?.name ?? "Mahasiswa",
           locationType: c.locationType,
+          locationDetail: c.locationDetail,
           meetLink: c.meetLink,
         };
       })

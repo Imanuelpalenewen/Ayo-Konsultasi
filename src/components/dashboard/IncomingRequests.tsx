@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, X, Inbox, RefreshCw, Star, ChevronDown } from "lucide-react";
+import { Check, X, Inbox, RefreshCw, Star, ChevronDown, Video, MapPin } from "lucide-react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -365,12 +365,27 @@ export function IncomingRequests() {
                       <p className="text-xs text-gray-500 dark:text-gray-400">{req.time}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md border border-gray-100 dark:border-gray-700">
+                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-4 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md border border-gray-100 dark:border-gray-700">
                     <span className="font-medium text-gray-900 dark:text-gray-100">Topic:</span> {req.topic}
                     {req.notes && (
                       <span className="block mt-1 text-gray-500 text-xs">Notes: {req.notes}</span>
                     )}
-                  </p>
+                    <span className="flex items-center gap-1 mt-1.5">
+                      {req.locationType === "online" ? (
+                        <>
+                          <Video className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                          <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">Online — Jitsi Meet</span>
+                        </>
+                      ) : req.locationType === "tatap_muka" ? (
+                        <>
+                          <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Tatap Muka{req.locationDetail ? ` — ${req.locationDetail}` : ""}
+                          </span>
+                        </>
+                      ) : null}
+                    </span>
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleStatusUpdate(req._id, "accepted")}

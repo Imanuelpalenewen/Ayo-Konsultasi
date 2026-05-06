@@ -1,7 +1,15 @@
-import { Bell } from "lucide-react";
+import { Bell, Video } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
+
+const JITSI_PATTERN = / Link meeting: (https:\/\/meet\.jit\.si\/\S+)/;
+
+function parseMeetLink(message: string): { text: string; meetLink: string | null } {
+  const match = message.match(JITSI_PATTERN);
+  if (!match) return { text: message, meetLink: null };
+  return { text: message.replace(JITSI_PATTERN, ""), meetLink: match[1] };
+}
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,19 +49,32 @@ export function NotificationBell() {
                 No notifications
               </div>
             ) : (
-              notifications.map((notif) => (
-                <div 
-                  key={notif._id} 
-                  className={`p-3 border-b border-gray-100 dark:border-gray-800 text-sm ${
-                    !notif.isRead ? "bg-yellow-50 dark:bg-yellow-900/10" : ""
-                  }`}
-                >
-                  <p className="text-gray-800 dark:text-gray-200">{notif.message}</p>
-                  <span className="text-xs text-gray-500 mt-1 block">
-                    {new Date(notif.createdAt).toLocaleDateString()} {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              ))
+              notifications.map((notif) => {
+                const { text, meetLink } = parseMeetLink(notif.message);
+                return (
+                  <div
+                    key={notif._id}
+                    className={`p-3 border-b border-gray-100 dark:border-gray-800 text-sm ${
+                      !notif.isRead ? "bg-yellow-50 dark:bg-yellow-900/10" : ""
+                    }`}
+                  >
+                    <p className="text-gray-800 dark:text-gray-200">{text}</p>
+                    {meetLink && (
+                      <a
+                        href={meetLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1.5 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800 transition-colors"
+                      >
+                        <Video className="w-3.5 h-3.5" /> Join Meeting
+                      </a>
+                    )}
+                    <span className="text-xs text-gray-500 mt-1.5 block">
+                      {new Date(notif.createdAt).toLocaleDateString()} {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
