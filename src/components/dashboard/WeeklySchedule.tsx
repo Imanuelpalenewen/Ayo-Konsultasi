@@ -28,7 +28,7 @@ export function WeeklySchedule() {
             {schedule.map((dayPlan, i) => (
               <div key={i} className="relative">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                     <Calendar className="w-4 h-4" />
                   </div>
                   <h4 className="font-medium text-gray-900 dark:text-gray-100">{dayPlan.day}</h4>
@@ -37,9 +37,9 @@ export function WeeklySchedule() {
                   {dayPlan.sessions.length > 0 ? (
                     dayPlan.sessions.map((session, j) => (
                       <div key={j} className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-lg p-3 relative">
-                        <div className="absolute -left-9.75 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-purple-500 ring-4 ring-white dark:ring-gray-800" />
+                        <div className="absolute -left-9.75 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary ring-4 ring-white dark:ring-gray-800" />
                         <div className="flex justify-between items-start mb-1">
-                          <span className="font-medium text-purple-700 dark:text-purple-400 text-sm">{session.time}</span>
+                          <span className="font-medium text-primary text-sm">{session.time}</span>
                           <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-2 py-0.5 rounded shadow-sm border border-gray-100 dark:border-gray-700">
                             {session.studentName}
                           </span>

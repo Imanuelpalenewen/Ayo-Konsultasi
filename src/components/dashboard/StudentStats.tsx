@@ -29,8 +29,8 @@ export function StudentStats({ upcomingCount, pendingCount, completedCount }: St
       value: completedCount,
       subLabel: "Konsultasi selesai",
       icon: CheckCircle,
-      iconColor: "text-purple-500",
-      iconBg: "bg-purple-50 dark:bg-purple-900/20",
+      iconColor: "text-primary",
+      iconBg: "bg-primary/10",
     },
   ];
 

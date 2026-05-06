@@ -85,7 +85,7 @@ export function StudentDashboard() {
         {pendingRequests.length > 0 && (
           <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Ada {pendingRequests.length} permintaan konsultasi yang butuh perhatian dosen.
               </span>

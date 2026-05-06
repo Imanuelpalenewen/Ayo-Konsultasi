@@ -28,8 +28,16 @@ dist-ssr
 *.sln
 *.sw?
 
-# docs
+# Agent artifacts — never commit these
+.agents/
+.claude/
+skills-lock.json
+
+# Project instruction files — local only
 docs
 CLAUDE.md
 PROMPT.md
 user-stories.md
+
+# Build artifacts and local files
+*.zip

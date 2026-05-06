@@ -42,15 +42,15 @@ export function LecturerSchedulePage() {
                 {/* Day header */}
                 <div className={`px-5 py-3 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 ${
                   dayPlan.sessions.length > 0
-                    ? "bg-purple-50 dark:bg-purple-900/20"
+                    ? "bg-primary/5"
                     : "bg-gray-50 dark:bg-gray-800/40"
                 }`}>
-                  <Calendar className={`w-4 h-4 ${dayPlan.sessions.length > 0 ? "text-purple-600 dark:text-purple-400" : "text-gray-400"}`} />
-                  <h3 className={`font-semibold text-sm ${dayPlan.sessions.length > 0 ? "text-purple-800 dark:text-purple-300" : "text-gray-500 dark:text-gray-400"}`}>
+                  <Calendar className={`w-4 h-4 ${dayPlan.sessions.length > 0 ? "text-primary" : "text-gray-400"}`} />
+                  <h3 className={`font-semibold text-sm ${dayPlan.sessions.length > 0 ? "text-yellow-800 dark:text-primary" : "text-gray-500 dark:text-gray-400"}`}>
                     {dayPlan.day}
                   </h3>
                   {dayPlan.sessions.length > 0 && (
-                    <span className="ml-auto text-xs bg-purple-100 dark:bg-purple-800/40 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium">
+                    <span className="ml-auto text-xs bg-primary/10 text-yellow-800 dark:text-primary px-2 py-0.5 rounded-full font-medium">
                       {dayPlan.sessions.length} sesi
                     </span>
                   )}
@@ -65,8 +65,8 @@ export function LecturerSchedulePage() {
                         className="bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 rounded-xl p-3"
                       >
                         <div className="flex items-center gap-1.5 mb-1.5">
-                          <Clock className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-                          <span className="text-sm font-semibold text-purple-700 dark:text-purple-400">{session.time}</span>
+                          <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
+                          <span className="text-sm font-semibold text-primary">{session.time}</span>
                         </div>
                         <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{session.topic}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{session.studentName}</p>
