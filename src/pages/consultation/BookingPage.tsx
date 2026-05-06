@@ -28,7 +28,6 @@ import { AMPMBadge } from "../../components/shared/AMPMBadge";
 
 type Step = "form" | "searching" | "results";
 type LocationType = "online" | "tatap_muka";
-type OnlinePlatform = "meet" | "zoom";
 
 interface Recommendation {
   lecturerId: string;
@@ -56,7 +55,6 @@ export function BookingPage() {
   const [customTopic, setCustomTopic] = useState("");
   const [description, setDescription] = useState("");
   const [locationType, setLocationType] = useState<LocationType | "">("");
-  const [onlinePlatform, setOnlinePlatform] = useState<OnlinePlatform>("meet");
   const [locationDetail, setLocationDetail] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -151,9 +149,7 @@ export function BookingPage() {
 
     const dateStr = format(selectedDate, "yyyy-MM-dd");
     const resolvedDetail =
-      locationType === "online"
-        ? onlinePlatform === "meet" ? "Google Meet" : "Zoom"
-        : locationDetail.trim();
+      locationType === "online" ? "Jitsi" : locationDetail.trim();
 
     try {
       await createConsultation({
@@ -175,9 +171,7 @@ export function BookingPage() {
   // ── Derived: recap line for Step 2 header ─────────────────────
   const bookingSummary = selectedDate
     ? `${effectiveTopic} · ${format(selectedDate, "d MMM yyyy", { locale: idLocale })} · ${time} WITA · ${
-        locationType === "online"
-          ? onlinePlatform === "meet" ? "Google Meet" : "Zoom"
-          : locationDetail
+        locationType === "online" ? "Jitsi" : locationDetail
       }`
     : "";
 
@@ -300,23 +294,14 @@ export function BookingPage() {
               </div>
 
               {locationType === "online" && (
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Platform:</p>
-                  <div className="flex gap-5">
-                    {(["meet", "zoom"] as OnlinePlatform[]).map((p) => (
-                      <label key={p} className="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="platform" value={p} checked={onlinePlatform === p}
-                          onChange={() => setOnlinePlatform(p)} className="accent-primary" />
-                        <Video className="w-3.5 h-3.5 text-gray-400" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {p === "meet" ? "Google Meet" : "Zoom"}
-                        </span>
-                      </label>
-                    ))}
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 flex items-start gap-3">
+                  <Video className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Jitsi Meet</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Link meeting digenerate otomatis setelah dosen menyetujui.
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-400 italic">
-                    Link meeting digenerate otomatis setelah dosen menyetujui.
-                  </p>
                 </div>
               )}
 

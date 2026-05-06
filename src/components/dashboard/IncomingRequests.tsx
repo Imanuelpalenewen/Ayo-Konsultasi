@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, X, Inbox, RefreshCw, Star, ChevronDown } from "lucide-react";
+import { Check, X, Inbox, RefreshCw, Star, ChevronDown, Video, MapPin } from "lucide-react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -71,15 +71,18 @@ function ReassignModal({
     }
   };
 
+  const reasonTrimmed = reason.trim();
+  const reasonInvalid = reasonTrimmed.length < 10;
+
   const handleSubmit = async () => {
-    if (!selectedLecturerId) return;
+    if (!selectedLecturerId || reasonInvalid) return;
     setIsSubmitting(true);
     setSubmitError(null);
     try {
       await reassign({
         consultationId,
         newLecturerId: selectedLecturerId as Id<"users">,
-        reason: reason.trim() || undefined,
+        reason: reasonTrimmed,
       });
       onClose();
     } catch (err) {
@@ -250,18 +253,25 @@ function ReassignModal({
             )}
           </div>
 
-          {/* Reason field */}
+          {/* Reason field — required */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Alasan Reassign <span className="text-gray-400">(opsional)</span>
+              Alasan Reassign <span className="text-red-500">*</span>
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Contoh: Jadwal bentrok, keahlian lebih sesuai, dll."
+              placeholder="Contoh: Jadwal saya bentrok pada tanggal tersebut, topik lebih sesuai dengan keahlian dosen lain."
               rows={2}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className={`w-full border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none transition-colors ${
+                reason.length > 0 && reasonInvalid
+                  ? "border-red-400 dark:border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
+              }`}
             />
+            {reason.length > 0 && reasonInvalid && (
+              <p className="text-xs text-red-500 mt-1">Minimal 10 karakter ({reason.trim().length}/10).</p>
+            )}
           </div>
 
           {submitError && (
@@ -272,7 +282,7 @@ function ReassignModal({
           <div className="flex gap-3 pt-1">
             <button
               onClick={handleSubmit}
-              disabled={!selectedLecturerId || isSubmitting}
+              disabled={!selectedLecturerId || reasonInvalid || isSubmitting}
               className="flex-1 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 px-4 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2"
             >
               {isSubmitting ? <Spinner size="sm" /> : <RefreshCw className="w-4 h-4" />}
@@ -355,12 +365,27 @@ export function IncomingRequests() {
                       <p className="text-xs text-gray-500 dark:text-gray-400">{req.time}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md border border-gray-100 dark:border-gray-700">
+                  <div className="text-sm text-gray-700 dark:text-gray-300 mb-4 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-md border border-gray-100 dark:border-gray-700">
                     <span className="font-medium text-gray-900 dark:text-gray-100">Topic:</span> {req.topic}
                     {req.notes && (
                       <span className="block mt-1 text-gray-500 text-xs">Notes: {req.notes}</span>
                     )}
-                  </p>
+                    <span className="flex items-center gap-1 mt-1.5">
+                      {req.locationType === "online" ? (
+                        <>
+                          <Video className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                          <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">Online — Jitsi Meet</span>
+                        </>
+                      ) : req.locationType === "tatap_muka" ? (
+                        <>
+                          <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Tatap Muka{req.locationDetail ? ` — ${req.locationDetail}` : ""}
+                          </span>
+                        </>
+                      ) : null}
+                    </span>
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleStatusUpdate(req._id, "accepted")}

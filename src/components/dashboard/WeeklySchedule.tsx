@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react";
+import { Calendar, Video, MapPin } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
@@ -45,6 +45,28 @@ export function WeeklySchedule() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{session.topic}</p>
+                        <div className="mt-1.5">
+                          {session.locationType === "online" ? (
+                            session.meetLink ? (
+                              <a
+                                href={session.meetLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 hover:underline font-medium"
+                              >
+                                <Video className="w-3 h-3" /> Join Meeting
+                              </a>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400">
+                                <Video className="w-3 h-3" /> Online
+                              </span>
+                            )
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                              <MapPin className="w-3 h-3" /> Tatap Muka
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))
                   ) : (

@@ -340,7 +340,7 @@ export const seedTestAccounts = action({
       // Mahasiswa UNKLAB 24 orang
       {
         name: "Noel Palenewen",
-        email: "s22310473@student.unklab.ac.id",
+        email: "s22310472@student.unklab.ac.id",
         password: "student123",
         role: "student" as const,
         nim: "22051001",
