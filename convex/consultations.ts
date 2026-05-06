@@ -79,6 +79,18 @@ export const updateStatus = mutation({
       updatedAt: Date.now(),
     });
 
+    // Generate a Jitsi meet link when a lecturer accepts an online booking (idempotent)
+    let meetLink = consultation.meetLink;
+    if (
+      args.status === "accepted" &&
+      consultation.locationType === "online" &&
+      !consultation.meetLink
+    ) {
+      const room = `ayokonsultasi-${crypto.randomUUID()}`;
+      meetLink = `https://meet.jit.si/${room}`;
+      await ctx.db.patch(args.consultationId, { meetLink });
+    }
+
     // Determine who to notify
     const notifyUserId = userId === consultation.lecturerId ? consultation.studentId : consultation.lecturerId;
     const actorProfile = await ctx.db
@@ -93,10 +105,16 @@ export const updateStatus = mutation({
       cancelled: "membatalkan",
     }[args.status];
 
+    const baseMessage = `${actorProfile?.name || "Seseorang"} ${statusText} sesi konsultasi Anda.`;
+    const notifMessage =
+      args.status === "accepted" && meetLink
+        ? `${baseMessage} Link meeting: ${meetLink}`
+        : baseMessage;
+
     await ctx.runMutation(internal.notifications.createNotification, {
       userId: notifyUserId,
       type: `booking_${args.status}`,
-      message: `${actorProfile?.name || "Seseorang"} ${statusText} sesi konsultasi Anda.`,
+      message: notifMessage,
       relatedId: consultation._id,
     });
 
@@ -143,11 +161,15 @@ export const reassignConsultation = mutation({
   args: {
     consultationId: v.id("consultations"),
     newLecturerId: v.id("users"),
-    reason: v.optional(v.string()),
+    reason: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
+
+    if (args.reason.trim().length < 10) {
+      throw new Error("Alasan reassign wajib diisi minimal 10 karakter.");
+    }
 
     const consultation = await ctx.db.get(args.consultationId);
     if (!consultation) throw new Error("Consultation not found");
@@ -158,7 +180,7 @@ export const reassignConsultation = mutation({
       status: "pending",
       reassignedFrom: userId,
       reassignedTo: args.newLecturerId,
-      reassignReason: args.reason,
+      reassignReason: args.reason.trim(),
       updatedAt: Date.now(),
     });
 
@@ -172,19 +194,21 @@ export const reassignConsultation = mutation({
       .withIndex("by_userId", (q) => q.eq("userId", args.newLecturerId))
       .unique();
 
-    // Notify student
+    const reason = args.reason.trim();
+
+    // Notify student — include reason so they know why
     await ctx.runMutation(internal.notifications.createNotification, {
       userId: consultation.studentId,
       type: "booking_reassigned",
-      message: `Konsultasi Anda tentang "${consultation.topic}" telah dialihkan ke ${newLecturerProfile?.name || "dosen lain"} oleh ${reassigningLecturerProfile?.name || "dosen"}.`,
+      message: `Konsultasi Anda tentang "${consultation.topic}" dialihkan ke ${newLecturerProfile?.name || "dosen lain"} oleh ${reassigningLecturerProfile?.name || "dosen"}. Alasan: ${reason}`,
       relatedId: consultation._id,
     });
 
-    // Notify new lecturer
+    // Notify new lecturer — include reason so they understand the context
     await ctx.runMutation(internal.notifications.createNotification, {
       userId: args.newLecturerId,
       type: "new_booking",
-      message: `Anda menerima permintaan konsultasi yang dialihkan dari ${reassigningLecturerProfile?.name || "dosen lain"} tentang "${consultation.topic}".`,
+      message: `Anda menerima reassign dari ${reassigningLecturerProfile?.name || "dosen lain"} tentang "${consultation.topic}". Alasan: ${reason}`,
       relatedId: consultation._id,
     });
 
@@ -271,6 +295,8 @@ export const getLecturerWeeklySchedule = query({
           topic: c.topic,
           dayName: DAY_NAMES[dayIdx],
           studentName: student?.name ?? "Mahasiswa",
+          locationType: c.locationType,
+          meetLink: c.meetLink,
         };
       })
     );

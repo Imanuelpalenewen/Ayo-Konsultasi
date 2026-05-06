@@ -2,7 +2,7 @@ import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
-import { History as HistoryIcon, Clock, CheckCircle, XCircle, SearchX } from "lucide-react";
+import { History as HistoryIcon, Clock, CheckCircle, XCircle, SearchX, Video } from "lucide-react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Spinner } from "../../components/shared/Spinner";
 import { EmptyState } from "../../components/shared/EmptyState";
@@ -98,27 +98,44 @@ export function HistoryPage() {
                       </td>
                       <td className="p-4">
                         <div className="text-gray-800 dark:text-gray-200">{item.topic}</div>
+                        {item.reassignReason && (
+                          <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
+                            Dialihkan: {item.reassignReason}
+                          </div>
+                        )}
                       </td>
                       <td className="p-4">
                         {getStatusBadge(item.status)}
                       </td>
                       <td className="p-4 text-right">
-                        {item.status === "accepted" && user?.role === "lecturer" && (
-                          <button 
-                            onClick={() => handleStatusUpdate(item._id, "completed")}
-                            className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
-                          >
-                            <CheckCircle className="w-4 h-4" /> Mark Completed
-                          </button>
-                        )}
-                        {item.status === "pending" && user?.role === "student" && (
-                          <button 
-                            onClick={() => handleStatusUpdate(item._id, "cancelled")}
-                            className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800"
-                          >
-                            <XCircle className="w-4 h-4" /> Cancel
-                          </button>
-                        )}
+                        <div className="flex flex-col items-end gap-2">
+                          {item.status === "accepted" && item.locationType === "online" && item.meetLink && (
+                            <a
+                              href={item.meetLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium"
+                            >
+                              <Video className="w-4 h-4" /> Join Meeting
+                            </a>
+                          )}
+                          {item.status === "accepted" && user?.role === "lecturer" && (
+                            <button
+                              onClick={() => handleStatusUpdate(item._id, "completed")}
+                              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                            >
+                              <CheckCircle className="w-4 h-4" /> Mark Completed
+                            </button>
+                          )}
+                          {item.status === "pending" && user?.role === "student" && (
+                            <button
+                              onClick={() => handleStatusUpdate(item._id, "cancelled")}
+                              className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-800"
+                            >
+                              <XCircle className="w-4 h-4" /> Cancel
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))

@@ -71,15 +71,18 @@ function ReassignModal({
     }
   };
 
+  const reasonTrimmed = reason.trim();
+  const reasonInvalid = reasonTrimmed.length < 10;
+
   const handleSubmit = async () => {
-    if (!selectedLecturerId) return;
+    if (!selectedLecturerId || reasonInvalid) return;
     setIsSubmitting(true);
     setSubmitError(null);
     try {
       await reassign({
         consultationId,
         newLecturerId: selectedLecturerId as Id<"users">,
-        reason: reason.trim() || undefined,
+        reason: reasonTrimmed,
       });
       onClose();
     } catch (err) {
@@ -250,18 +253,25 @@ function ReassignModal({
             )}
           </div>
 
-          {/* Reason field */}
+          {/* Reason field — required */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Alasan Reassign <span className="text-gray-400">(opsional)</span>
+              Alasan Reassign <span className="text-red-500">*</span>
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Contoh: Jadwal bentrok, keahlian lebih sesuai, dll."
+              placeholder="Contoh: Jadwal saya bentrok pada tanggal tersebut, topik lebih sesuai dengan keahlian dosen lain."
               rows={2}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className={`w-full border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none transition-colors ${
+                reason.length > 0 && reasonInvalid
+                  ? "border-red-400 dark:border-red-500"
+                  : "border-gray-300 dark:border-gray-600"
+              }`}
             />
+            {reason.length > 0 && reasonInvalid && (
+              <p className="text-xs text-red-500 mt-1">Minimal 10 karakter ({reason.trim().length}/10).</p>
+            )}
           </div>
 
           {submitError && (
@@ -272,7 +282,7 @@ function ReassignModal({
           <div className="flex gap-3 pt-1">
             <button
               onClick={handleSubmit}
-              disabled={!selectedLecturerId || isSubmitting}
+              disabled={!selectedLecturerId || reasonInvalid || isSubmitting}
               className="flex-1 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2.5 px-4 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2"
             >
               {isSubmitting ? <Spinner size="sm" /> : <RefreshCw className="w-4 h-4" />}

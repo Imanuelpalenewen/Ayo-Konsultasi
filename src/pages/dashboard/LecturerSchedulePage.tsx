@@ -2,7 +2,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { Spinner } from "../../components/shared/Spinner";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Video } from "lucide-react";
 
 export function LecturerSchedulePage() {
   const schedule = useQuery(api.consultations.getLecturerWeeklySchedule);
@@ -70,6 +70,16 @@ export function LecturerSchedulePage() {
                         </div>
                         <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{session.topic}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{session.studentName}</p>
+                        {session.locationType === "online" && session.meetLink && (
+                          <a
+                            href={session.meetLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1.5 inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 hover:underline font-medium"
+                          >
+                            <Video className="w-3 h-3" /> Join Meeting
+                          </a>
+                        )}
                       </div>
                     ))
                   ) : (
