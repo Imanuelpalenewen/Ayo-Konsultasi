@@ -144,7 +144,7 @@ export const updateProfile = mutation({
 
     await ctx.db.patch(profile._id, {
       name: args.name,
-      avatarUrl: args.avatarUrl,
+      ...(args.avatarUrl !== undefined ? { avatarUrl: args.avatarUrl } : {}),
       ...(args.major !== undefined ? { major: args.major } : {}),
       ...(args.expertise !== undefined ? { expertise: args.expertise } : {}),
       ...(args.availability !== undefined ? { availability: args.availability } : {}),

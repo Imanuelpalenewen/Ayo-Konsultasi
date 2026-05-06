@@ -1,6 +1,6 @@
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { StudentStats } from "../../components/dashboard/StudentStats";
-import { Plus, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Plus, Clock, CheckCircle2, AlertCircle, ClockIcon, CalendarIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -55,7 +55,7 @@ export function StudentDashboard() {
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Selamat datang kembali,</p>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {firstName} 👋
+              {firstName} 
             </h1>
             {pendingRequests.length > 0 ? (
               <p className="text-gray-500 dark:text-gray-400 mt-1">
@@ -85,7 +85,7 @@ export function StudentDashboard() {
         {pendingRequests.length > 0 && (
           <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Ada {pendingRequests.length} permintaan konsultasi yang butuh perhatian dosen.
               </span>
@@ -154,10 +154,10 @@ export function StudentDashboard() {
                   </p>
                   <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                     <span className="flex items-center gap-1">
-                      <span>📅</span> {consultation.date}
+                      <CalendarIcon className="w- h-4 shrink-0" />{consultation.date}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span>🕐</span> {consultation.time}
+                      <ClockIcon className="w-4 h-4 text-gray-400 shrink-0" /> {consultation.time}
                     </span>
                   </div>
                 </div>
