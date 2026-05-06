@@ -4,8 +4,8 @@ interface AMPMBadgeProps {
 }
 
 const TOOLTIP: Record<"AM" | "PM", string> = {
-  AM: "AM (Ante Meridiem): pukul 00:00 – 11:59 PAGI",
-  PM: "PM (Post Meridiem): pukul 12:00 – 23:59",
+  AM: "AM (Ante Meridiem): pukul 00:00 – 11:59 PAGI - SIANG",
+  PM: "PM (Post Meridiem): pukul 12:00 – 23:59 SIANG - MALAM",
 };
 
 export function AMPMBadge({ period, className = "" }: AMPMBadgeProps) {
