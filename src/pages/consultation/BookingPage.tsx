@@ -191,10 +191,23 @@ export function BookingPage() {
         notes: description,
         locationType,
         locationDetail: locationType === "online" ? "Jitsi" : locationDetail.trim(),
+        bookingSource: bookingMode,
       });
-      navigate("/student/ai-recommendation");
-    } catch {
-      setBookingError("Gagal membuat booking. Silakan coba lagi.");
+      navigate("/student/booking-confirmation", {
+        state: {
+          bookingSource: bookingMode,
+          aiRecommendations: bookingMode === "ai" ? recommendations : undefined,
+        },
+      });
+    } catch (err: unknown) {
+      const code = (err as any)?.data?.code;
+      if (code === "SLOT_TAKEN") {
+        setBookingError(`Slot ${time} pada tanggal ${format(selectedDate, "d MMM yyyy", { locale: idLocale })} sudah terisi oleh booking lain. Pilih dosen lain atau ubah waktu.`);
+      } else if (code === "OUTSIDE_HOURS") {
+        setBookingError(`Dosen ini tidak memiliki jadwal pada ${format(selectedDate, "EEEE, d MMM yyyy", { locale: idLocale })} pukul ${time}. Pilih dosen yang tersedia atau ubah tanggal/jam.`);
+      } else {
+        setBookingError("Gagal membuat booking. Silakan coba lagi.");
+      }
       setSubmittingId(null);
     }
   };

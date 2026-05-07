@@ -7,7 +7,7 @@ import { LecturerDashboard } from "./pages/dashboard/LecturerDashboard";
 import { LecturerSchedulePage } from "./pages/dashboard/LecturerSchedulePage";
 import { ProfilePage } from "./pages/profile/ProfilePage";
 import { BookingPage } from "./pages/consultation/BookingPage";
-import { AIRecommendationPage } from "./pages/consultation/AIRecommendationPage";
+import { BookingConfirmationPage } from "./pages/consultation/BookingConfirmationPage";
 import { HistoryPage } from "./pages/consultation/History";
 import { AIChatPage } from "./pages/chat/AIChatPage";
 import { NotFoundPage, ServerErrorPage, ForbiddenPage } from "./pages/errors/ErrorPage";
@@ -53,13 +53,19 @@ function App() {
             </ProtectedRoute>
           }
         />
+        {/* Canonical confirmation route */}
         <Route
-          path="/student/ai-recommendation"
+          path="/student/booking-confirmation"
           element={
             <ProtectedRoute allowedRole="student">
-              <AIRecommendationPage />
+              <BookingConfirmationPage />
             </ProtectedRoute>
           }
+        />
+        {/* Backward-compat redirect for old bookmarks / existing navigations */}
+        <Route
+          path="/student/ai-recommendation"
+          element={<Navigate to="/student/booking-confirmation" replace />}
         />
         <Route
           path="/student/history"

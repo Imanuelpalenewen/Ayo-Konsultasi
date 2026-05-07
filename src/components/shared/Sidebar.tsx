@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Clock, User, X, LogOut, Calendar, MessageCircle, Sparkles } from "lucide-react";
+import { Home, Clock, User, X, LogOut, Calendar, MessageCircle, ClipboardList } from "lucide-react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useAuthActions } from "@convex-dev/auth/react";
 
@@ -23,7 +23,7 @@ export function Sidebar({ onClose, className = "" }: SidebarProps) {
   const studentLinks = [
     { name: "Beranda", href: "/student", icon: Home },
     { name: "Booking Konsultasi", href: "/student/book", icon: Calendar },
-    { name: "Rekomendasi AI", href: "/student/ai-recommendation", icon: Sparkles },
+    { name: "Detail Konsultasi", href: "/student/booking-confirmation", icon: ClipboardList },
     { name: "Riwayat", href: "/student/history", icon: Clock },
     { name: "Tanya AI", href: "/student/chat", icon: MessageCircle },
     { name: "Profil", href: "/student/profile", icon: User },
