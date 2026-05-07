@@ -28,6 +28,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { Spinner } from "../../components/shared/Spinner";
 import { AIThinkingOrb, SkeletonBlock, SkeletonText } from "../../components/shared/SkeletonPulse";
 import { AMPMBadge } from "../../components/shared/AMPMBadge";
+import { loadDraft, saveDraft, clearDraft, isDraftComplete } from "../../lib/bookingDraft";
 
 type Step = "form" | "searching" | "results" | "manual_pick";
 type BookingMode = "ai" | "manual";
@@ -82,6 +83,60 @@ export function BookingPage() {
   // ── Shared booking state ──────────────────────────────────────
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [bookingError, setBookingError] = useState("");
+
+  // ── Draft persistence ─────────────────────────────────────────
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  // Hydrate from sessionStorage on mount
+  useEffect(() => {
+    const draft = loadDraft();
+    if (!draft) return;
+    setConsultationType(draft.consultationType);
+    setCustomTopic(draft.customTopic);
+    setDescription(draft.description);
+    setLocationType(draft.locationType as "online" | "tatap_muka" | "");
+    setLocationDetail(draft.locationDetail);
+    setTime(draft.time);
+    setBookingMode(draft.bookingMode);
+    if (draft.selectedDate) setSelectedDate(new Date(draft.selectedDate + "T00:00:00"));
+    setDraftRestored(true);
+    // Auto-jump to manual picker if form is fully valid
+    if (draft.bookingMode === "manual" && isDraftComplete(draft)) {
+      setStep("manual_pick");
+    }
+  }, []); // mount only
+
+  // Persist draft whenever form fields change (skip while AI is searching)
+  useEffect(() => {
+    if (step === "searching") return;
+    // Don't save a completely empty draft on first render
+    if (!consultationType && !description && !time && !selectedDate) return;
+    saveDraft({
+      consultationType,
+      customTopic,
+      description,
+      locationType,
+      locationDetail,
+      selectedDate: selectedDate ? format(selectedDate, "yyyy-MM-dd") : null,
+      time,
+      bookingMode,
+    });
+  }, [consultationType, customTopic, description, locationType, locationDetail, selectedDate, time, bookingMode, step]);
+
+  const handleResetDraft = () => {
+    clearDraft();
+    setConsultationType("");
+    setCustomTopic("");
+    setDescription("");
+    setLocationType("");
+    setLocationDetail("");
+    setSelectedDate(undefined);
+    setTime("");
+    setBookingMode("ai");
+    setStep("form");
+    setDraftRestored(false);
+    setSearchError("");
+  };
 
   // Cycle loading messages every 3s during AI search
   useEffect(() => {
@@ -193,6 +248,7 @@ export function BookingPage() {
         locationDetail: locationType === "online" ? "Jitsi" : locationDetail.trim(),
         bookingSource: bookingMode,
       });
+      clearDraft();
       navigate("/student/booking-confirmation", {
         state: {
           bookingSource: bookingMode,
@@ -233,6 +289,22 @@ export function BookingPage() {
             Pilih cara menemukan dosenmu — biarkan AI membantu, atau langsung pilih sendiri.
           </p>
         </div>
+
+        {/* Draft restored banner */}
+        {draftRestored && (step === "form" || step === "manual_pick") && (
+          <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-2.5">
+            <span className="text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2">
+              <Info className="w-4 h-4 shrink-0" />
+              Draft sebelumnya dipulihkan secara otomatis.
+            </span>
+            <button
+              onClick={handleResetDraft}
+              className="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 underline ml-4 shrink-0"
+            >
+              Mulai dari awal
+            </button>
+          </div>
+        )}
 
         {/* ── Mode toggle — only visible on form step ── */}
         {isFormStep && (
