@@ -11,6 +11,9 @@ import { BookingConfirmationPage } from "./pages/consultation/BookingConfirmatio
 import { HistoryPage } from "./pages/consultation/History";
 import { AIChatPage } from "./pages/chat/AIChatPage";
 import { NotFoundPage, ServerErrorPage, ForbiddenPage } from "./pages/errors/ErrorPage";
+import { HelpCenter } from "./pages/help/HelpCenter";
+import { StudentGuide } from "./pages/help/StudentGuide";
+import { LecturerGuide } from "./pages/help/LecturerGuide";
 
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 
@@ -122,6 +125,25 @@ function App() {
           element={
             <ProtectedRoute allowedRole="lecturer">
               <AIChatPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Help routes */}
+        <Route path="/help" element={<HelpCenter />} />
+        <Route
+          path="/student/help"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <StudentGuide />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/help"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <LecturerGuide />
             </ProtectedRoute>
           }
         />

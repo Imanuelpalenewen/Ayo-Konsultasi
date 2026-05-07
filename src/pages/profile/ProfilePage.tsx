@@ -7,6 +7,7 @@ import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { HelpIcon } from "../../components/shared/HelpIcon";
 import { Camera, Loader2 } from "lucide-react";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -64,7 +65,10 @@ export function ProfilePage() {
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl mx-auto text-gray-900 dark:text-gray-100">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Profil</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            Profil
+            <HelpIcon topic="profile" />
+          </h2>
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
             Kelola informasi akun dan pengaturan keamananmu.
           </p>

@@ -640,6 +640,7 @@ export const _upsertProfile = internalMutation({
       major: args.major,
       expertise: args.expertise,
       availability: args.availability,
+      hasSeenGuide: true,
       createdAt: Date.now(),
     });
   },

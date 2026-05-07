@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { AMPMBadge } from "../../components/shared/AMPMBadge";
 import { SkeletonRecommendationPage } from "../../components/shared/SkeletonPulse";
+import { HelpIcon } from "../../components/shared/HelpIcon";
 import { Loader2 } from "lucide-react";
 import {
   Sparkles,
@@ -279,6 +280,7 @@ export function BookingConfirmationPage() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <ClipboardList className="w-6 h-6 text-primary" />
             Detail Konsultasi
+            <HelpIcon topic="booking-confirmation" />
           </h2>
           <button
             onClick={() => navigate("/student/book")}

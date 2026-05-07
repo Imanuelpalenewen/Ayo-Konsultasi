@@ -42,6 +42,10 @@ export default defineSchema({
       )
     ),
 
+    /** Set to true once the user has read and dismissed the onboarding guide.
+     *  undefined / false → show onboarding overlay on first login. */
+    hasSeenGuide: v.optional(v.boolean()),
+
     createdAt: v.number(),
   })
     .index("by_userId", ["userId"])

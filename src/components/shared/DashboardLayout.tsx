@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
+import { OnboardingOverlay } from "./OnboardingOverlay";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -10,14 +12,20 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const user = useCurrentUser();
 
   // Close sidebar on route change for mobile
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
+  // Show onboarding overlay for first-time users — not on the guide page itself
+  const isHelpPage = location.pathname.includes("/help");
+  const showOnboarding = user !== undefined && user !== null && !user.hasSeenGuide && !isHelpPage;
+
   return (
     <div className="flex h-screen bg-[#f0f4f8] dark:bg-gray-900 overflow-hidden transition-colors">
+      {showOnboarding && <OnboardingOverlay />}
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div

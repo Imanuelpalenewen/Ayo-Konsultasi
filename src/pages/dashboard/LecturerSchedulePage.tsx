@@ -3,6 +3,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { SkeletonScheduleDayCard } from "../../components/shared/SkeletonPulse";
+import { HelpIcon } from "../../components/shared/HelpIcon";
 import { Calendar, Clock, Video, MapPin, X, Copy } from "lucide-react";
 
 type Session = {
@@ -114,7 +115,10 @@ export function LecturerSchedulePage() {
 
       <div className="space-y-6 max-w-4xl mx-auto">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Jadwal Minggu Ini</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            Jadwal Minggu Ini
+            <HelpIcon topic="lecturer-schedule" />
+          </h2>
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
             Konsultasi yang sudah diterima untuk minggu berjalan.
             {schedule !== undefined && (

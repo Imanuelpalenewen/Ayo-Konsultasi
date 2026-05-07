@@ -1,5 +1,5 @@
-import { useLocation, Link } from "react-router-dom";
-import { Menu, Moon, Sun } from "lucide-react";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { Menu, Moon, Sun, HelpCircle } from "lucide-react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useDarkMode } from "../../hooks/useDarkMode";
 import { NotificationBell } from "./NotificationBell";
@@ -24,6 +24,7 @@ export function Navbar({ onOpenSidebar }: NavbarProps) {
   const user = useCurrentUser();
   const { isDark, toggle } = useDarkMode();
   const location = useLocation();
+  const navigate = useNavigate();
   const breadcrumb = getBreadcrumb(location.pathname, user?.role || "student");
 
   // Resolve avatar URL (handles both storageId and legacy HTTP URLs)
@@ -60,7 +61,7 @@ export function Navbar({ onOpenSidebar }: NavbarProps) {
         <GlobalSearch />
       </div>
 
-      {/* Right: Dark Mode + Bell + Avatar */}
+      {/* Right: Dark Mode + Help + Bell + Avatar */}
       <div className="flex items-center gap-2 shrink-0">
         <button
           onClick={toggle}
@@ -68,6 +69,15 @@ export function Navbar({ onOpenSidebar }: NavbarProps) {
           aria-label="Toggle dark mode"
         >
           {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+
+        <button
+          onClick={() => navigate("/help")}
+          className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+          aria-label="Panduan"
+          title="Panduan"
+        >
+          <HelpCircle className="w-5 h-5" />
         </button>
 
         <NotificationBell />

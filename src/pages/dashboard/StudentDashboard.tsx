@@ -1,5 +1,6 @@
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { StudentStats } from "../../components/dashboard/StudentStats";
+import { HelpIcon } from "../../components/shared/HelpIcon";
 import { Plus, Clock, CheckCircle2, AlertCircle, ClockIcon, CalendarIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "convex/react";
@@ -57,8 +58,9 @@ export function StudentDashboard() {
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Selamat datang kembali,</p>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {firstName} 
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              {firstName}
+              <HelpIcon topic="student-dashboard" />
             </h1>
             {pendingRequests.length > 0 ? (
               <p className="text-gray-500 dark:text-gray-400 mt-1">
