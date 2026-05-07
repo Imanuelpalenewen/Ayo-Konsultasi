@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Clock, User, X, LogOut, Calendar, MessageCircle, ClipboardList } from "lucide-react";
+import { Home, Clock, User, X, LogOut, Calendar, MessageCircle, ClipboardList, HelpCircle } from "lucide-react";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useAuthActions } from "@convex-dev/auth/react";
 
@@ -27,6 +27,7 @@ export function Sidebar({ onClose, className = "" }: SidebarProps) {
     { name: "Riwayat", href: "/student/history", icon: Clock },
     { name: "Tanya AI", href: "/student/chat", icon: MessageCircle },
     { name: "Profil", href: "/student/profile", icon: User },
+    { name: "Panduan", href: "/student/help", icon: HelpCircle },
   ];
 
   // Links for lecturer
@@ -35,6 +36,7 @@ export function Sidebar({ onClose, className = "" }: SidebarProps) {
     { name: "Riwayat", href: "/lecturer/history", icon: Clock },
     { name: "Tanya AI", href: "/lecturer/chat", icon: MessageCircle },
     { name: "Profil", href: "/lecturer/profile", icon: User },
+    { name: "Panduan", href: "/lecturer/help", icon: HelpCircle },
   ];
 
   const links = user?.role === "student" ? studentLinks : user?.role === "lecturer" ? lecturerLinks : [];

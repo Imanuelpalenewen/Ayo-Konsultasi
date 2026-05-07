@@ -230,6 +230,22 @@ export const updateProfile = mutation({
   },
 });
 
+export const markGuideAsSeen = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!profile) throw new Error("Profile not found");
+    await ctx.db.patch(profile._id, { hasSeenGuide: true });
+  },
+});
+
 /**
  * Resolves a Convex storageId to a public download URL.
  * Also handles legacy HTTP avatarUrls so the UI doesn't need to branch.

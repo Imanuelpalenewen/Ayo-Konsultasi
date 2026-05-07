@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
+import { HelpIcon } from "../../components/shared/HelpIcon";
 import { useMutation, useAction, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useNavigate } from "react-router-dom";
@@ -326,6 +327,7 @@ export function BookingPage() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-primary" />
             Booking Konsultasi
+            <HelpIcon topic="booking" />
           </h2>
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
             Pilih cara menemukan dosenmu — biarkan AI membantu, atau langsung pilih sendiri.
