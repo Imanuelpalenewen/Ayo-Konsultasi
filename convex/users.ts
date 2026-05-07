@@ -112,6 +112,82 @@ export const getLecturers = query({
   },
 });
 
+const DAY_NAMES_LC = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+/**
+ * Get all lecturers annotated with availability status for a given date+time.
+ * Used by the manual lecturer picker to show/disable unavailable lecturers.
+ * Returns: "available" | "outside_hours" | "already_booked" per lecturer.
+ * Pressman traceability: US-06 (booking flow UX)
+ */
+export const getLecturersWithAvailability = query({
+  args: {
+    date: v.string(), // "YYYY-MM-DD"
+    time: v.string(), // "HH:mm"
+  },
+  handler: async (ctx, args) => {
+    const lecturers = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_role", (q) => q.eq("role", "lecturer"))
+      .collect();
+
+    const dayOfWeek = DAY_NAMES_LC[new Date(args.date + "T00:00:00Z").getUTCDay()];
+
+    const annotated = await Promise.all(
+      lecturers.map(async (lecturer) => {
+        const availability = lecturer.availability ?? [];
+
+        if (availability.length > 0) {
+          const hasSlot = availability.some(
+            (slot) =>
+              slot.day === dayOfWeek &&
+              slot.startTime <= args.time &&
+              args.time <= slot.endTime
+          );
+
+          if (!hasSlot) {
+            return {
+              ...lecturer,
+              availabilityStatus: "outside_hours" as const,
+              availabilityReason: `Tidak ada jadwal pada hari ${dayOfWeek} pukul ${args.time}`,
+            };
+          }
+        }
+
+        // Check for an existing pending/accepted booking at the exact same slot
+        const sameSlotBookings = await ctx.db
+          .query("consultations")
+          .withIndex("by_lecturer_date", (q) =>
+            q.eq("lecturerId", lecturer.userId).eq("date", args.date)
+          )
+          .collect();
+
+        const hasConflict = sameSlotBookings.some(
+          (c) =>
+            c.time === args.time &&
+            (c.status === "pending" || c.status === "accepted")
+        );
+
+        if (hasConflict) {
+          return {
+            ...lecturer,
+            availabilityStatus: "already_booked" as const,
+            availabilityReason: "Sudah ada janji terkonfirmasi pada waktu ini",
+          };
+        }
+
+        return {
+          ...lecturer,
+          availabilityStatus: "available" as const,
+          availabilityReason: undefined,
+        };
+      })
+    );
+
+    return annotated;
+  },
+});
+
 /**
  * Update the current user's profile information.
  */

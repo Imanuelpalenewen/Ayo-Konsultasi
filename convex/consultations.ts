@@ -1,7 +1,9 @@
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
+
+const DAY_NAMES_LC = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
 export const createConsultation = mutation({
   args: {
@@ -12,6 +14,7 @@ export const createConsultation = mutation({
     notes: v.optional(v.string()),
     locationType: v.union(v.literal("online"), v.literal("tatap_muka")),
     locationDetail: v.optional(v.string()),
+    bookingSource: v.optional(v.union(v.literal("ai"), v.literal("manual"))),
   },
   handler: async (ctx, args) => {
     const studentId = await getAuthUserId(ctx);
@@ -20,6 +23,46 @@ export const createConsultation = mutation({
     const selectedDateTime = new Date(`${args.date}T${args.time}`);
     if (selectedDateTime.getTime() < Date.now()) {
       throw new Error("Cannot book a consultation in the past");
+    }
+
+    // Defense-in-depth: validate lecturer availability window (only if slots are configured)
+    const lecturerProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", args.lecturerId))
+      .unique();
+
+    if (lecturerProfile) {
+      const availability = lecturerProfile.availability ?? [];
+      if (availability.length > 0) {
+        const dayOfWeek = DAY_NAMES_LC[new Date(args.date + "T00:00:00Z").getUTCDay()];
+        const hasSlot = availability.some(
+          (slot) =>
+            slot.day === dayOfWeek &&
+            slot.startTime <= args.time &&
+            args.time <= slot.endTime
+        );
+        if (!hasSlot) {
+          throw new ConvexError({ code: "OUTSIDE_HOURS", lecturerId: args.lecturerId });
+        }
+      }
+    }
+
+    // Reject if lecturer already has a pending/accepted booking at the exact same slot
+    const sameSlotBookings = await ctx.db
+      .query("consultations")
+      .withIndex("by_lecturer_date", (q) =>
+        q.eq("lecturerId", args.lecturerId).eq("date", args.date)
+      )
+      .collect();
+
+    const hasConflict = sameSlotBookings.some(
+      (c) =>
+        c.time === args.time &&
+        (c.status === "pending" || c.status === "accepted")
+    );
+
+    if (hasConflict) {
+      throw new ConvexError({ code: "SLOT_TAKEN", lecturerId: args.lecturerId });
     }
 
     const consultationId = await ctx.db.insert("consultations", {
@@ -31,6 +74,7 @@ export const createConsultation = mutation({
       notes: args.notes,
       locationType: args.locationType,
       locationDetail: args.locationDetail,
+      bookingSource: args.bookingSource,
       status: "pending",
       createdAt: Date.now(),
       updatedAt: Date.now(),
