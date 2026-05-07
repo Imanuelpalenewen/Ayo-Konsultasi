@@ -25,6 +25,7 @@ import {
 import { format, parseISO } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { Id } from "../../../convex/_generated/dataModel";
+import { saveDraft } from "../../lib/bookingDraft";
 
 type ConsultationStatus = "pending" | "accepted" | "rejected" | "completed" | "cancelled";
 type BookingSource = "ai" | "manual";
@@ -160,6 +161,25 @@ export function BookingConfirmationPage() {
     setSelectedId(id);
     setXaiOpen(true);
     setCancelError("");
+  };
+
+  // Reconstruct form draft from consultation data so BookingPage can pre-fill
+  const handlePickAnotherLecturer = () => {
+    if (!consultation) return;
+    const PRESET_TYPES = ["Skripsi", "Tugas Akhir", "Akademik Umum", "Karier"];
+    const isPreset = PRESET_TYPES.includes(consultation.topic);
+    saveDraft({
+      consultationType: isPreset ? consultation.topic : "Lainnya",
+      customTopic: isPreset ? "" : consultation.topic,
+      description: (consultation as any).notes ?? "",
+      locationType: consultation.locationType ?? "",
+      // "Jitsi" is an internal placeholder for online — restore as empty for user to re-enter
+      locationDetail: consultation.locationDetail === "Jitsi" ? "" : (consultation.locationDetail ?? ""),
+      selectedDate: consultation.date,
+      time: consultation.time,
+      bookingMode: "manual",
+    });
+    navigate("/student/book");
   };
 
   const handleCancel = async () => {
@@ -546,7 +566,7 @@ export function BookingConfirmationPage() {
                       {status === "pending" && (
                         <>
                           <button
-                            onClick={() => navigate("/student/book")}
+                            onClick={handlePickAnotherLecturer}
                             className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-lg transition-colors"
                           >
                             Pilih Dosen Lain

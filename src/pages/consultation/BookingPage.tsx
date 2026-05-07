@@ -54,7 +54,7 @@ export function BookingPage() {
   const navigate = useNavigate();
   const recommendLecturers = useAction(api.ai.recommendLecturers);
   const createConsultation = useMutation(api.consultations.createConsultation);
-  const allLecturers = useQuery(api.users.getLecturers);
+  const allLecturers = useQuery(api.users.getLecturers); // for expertise tags
 
   // ── Mode ──────────────────────────────────────────────────────
   const [bookingMode, setBookingMode] = useState<BookingMode>("ai");
@@ -69,6 +69,14 @@ export function BookingPage() {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [time, setTime] = useState("");
 
+  // Must be declared after selectedDate + time — uses them in args
+  const lecturersWithAvailability = useQuery(
+    api.users.getLecturersWithAvailability,
+    selectedDate && time
+      ? { date: format(selectedDate, "yyyy-MM-dd"), time }
+      : "skip"
+  );
+
   // ── AI flow state ─────────────────────────────────────────────
   const [step, setStep] = useState<Step>("form");
   const [searchError, setSearchError] = useState("");
@@ -79,6 +87,7 @@ export function BookingPage() {
   // ── Manual flow state ─────────────────────────────────────────
   const [lecturerSearch, setLecturerSearch] = useState("");
   const [expertiseFilter, setExpertiseFilter] = useState<string | null>(null);
+  const [hideUnavailable, setHideUnavailable] = useState(false);
 
   // ── Shared booking state ──────────────────────────────────────
   const [submittingId, setSubmittingId] = useState<string | null>(null);
@@ -173,15 +182,34 @@ export function BookingPage() {
     return Array.from(tags).sort();
   }, [allLecturers]);
 
-  // ── Filtered lecturer list for manual mode ────────────────────
+  // ── Filtered + availability-sorted lecturer list for manual mode ──
   const filteredLecturers = useMemo(() => {
-    if (!allLecturers) return [];
-    return allLecturers.filter((l) => {
+    // Prefer availability-annotated list; fall back to plain list
+    const base = (lecturersWithAvailability ?? allLecturers ?? []) as Array<
+      (typeof allLecturers extends (infer T)[] | undefined ? T : never) & {
+        availabilityStatus?: "available" | "outside_hours" | "already_booked";
+        availabilityReason?: string;
+      }
+    >;
+
+    let result = base.filter((l) => {
       const matchesName = l.name.toLowerCase().includes(lecturerSearch.toLowerCase());
       const matchesExpertise = !expertiseFilter || l.expertise?.includes(expertiseFilter);
       return matchesName && matchesExpertise;
     });
-  }, [allLecturers, lecturerSearch, expertiseFilter]);
+
+    if (hideUnavailable) {
+      result = result.filter((l) => l.availabilityStatus === "available" || l.availabilityStatus === undefined);
+    }
+
+    // Sort: available first, outside_hours second, already_booked last
+    const ORDER = { available: 0, outside_hours: 1, already_booked: 2 } as const;
+    return [...result].sort((a, b) => {
+      const aO = ORDER[a.availabilityStatus ?? "available"] ?? 0;
+      const bO = ORDER[b.availabilityStatus ?? "available"] ?? 0;
+      return aO - bO;
+    });
+  }, [lecturersWithAvailability, allLecturers, lecturerSearch, expertiseFilter, hideUnavailable]);
 
   // ── Form validation (shared) ──────────────────────────────────
   const validateForm = (): string | null => {
@@ -671,6 +699,19 @@ export function BookingPage() {
                 />
               </div>
 
+              {/* Hide unavailable toggle */}
+              <div className="flex items-center justify-end">
+                <label className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={hideUnavailable}
+                    onChange={(e) => setHideUnavailable(e.target.checked)}
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  Sembunyikan yang tidak tersedia
+                </label>
+              </div>
+
               {/* Expertise filter chips */}
               {expertiseTags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
@@ -712,7 +753,7 @@ export function BookingPage() {
             )}
 
             {/* Lecturer list */}
-            {allLecturers === undefined ? (
+            {(lecturersWithAvailability === undefined && selectedDate && time) || allLecturers === undefined ? (
               // Skeleton loading
               <div className="space-y-3">
                 {[0, 1, 2].map((i) => (
@@ -733,57 +774,115 @@ export function BookingPage() {
             ) : filteredLecturers.length === 0 ? (
               <div className="text-center py-12 text-gray-400">
                 <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                <p className="text-sm font-medium">Tidak ada dosen ditemukan.</p>
-                <p className="text-xs mt-1">Coba kata kunci atau filter lain.</p>
+                <p className="text-sm font-medium">
+                  {hideUnavailable ? "Tidak ada dosen tersedia pada waktu ini." : "Tidak ada dosen ditemukan."}
+                </p>
+                <p className="text-xs mt-1">
+                  {hideUnavailable
+                    ? "Coba ubah tanggal/jam, atau matikan filter."
+                    : "Coba kata kunci atau filter lain."}
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredLecturers.map((lecturer) => (
-                  <div
-                    key={lecturer.userId}
-                    className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
-                  >
-                    <div className="p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      {/* Avatar initials */}
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
-                        {lecturer.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()}
-                      </div>
+                {filteredLecturers.map((lecturer) => {
+                  const availStatus = lecturer.availabilityStatus;
+                  const availReason = lecturer.availabilityReason;
+                  const isUnavailable = availStatus === "outside_hours" || availStatus === "already_booked";
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0 space-y-1.5">
-                        <p className="font-semibold text-gray-900 dark:text-white text-sm">{lecturer.name}</p>
-                        {lecturer.expertise && lecturer.expertise.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {lecturer.expertise.slice(0, 3).map((e) => (
-                              <span key={e} className="text-[11px] bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">
-                                {e}
+                  return (
+                    <div
+                      key={lecturer.userId}
+                      className={`rounded-2xl border shadow-sm overflow-hidden transition-shadow ${
+                        isUnavailable
+                          ? "bg-gray-50 dark:bg-gray-900/40 border-gray-100 dark:border-gray-800"
+                          : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:shadow-md"
+                      }`}
+                    >
+                      <div className="p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                        {/* Avatar */}
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${
+                          isUnavailable
+                            ? "bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600"
+                            : "bg-primary/10 text-primary"
+                        }`}>
+                          {lecturer.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("").toUpperCase()}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className={`font-semibold text-sm ${
+                              isUnavailable ? "text-gray-400 dark:text-gray-500" : "text-gray-900 dark:text-white"
+                            }`}>
+                              {lecturer.name}
+                            </p>
+                            {availStatus === "already_booked" && (
+                              <span className="text-[10px] font-medium bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Clock className="w-3 h-3" /> Sudah dibooking
                               </span>
-                            ))}
-                            {lecturer.expertise.length > 3 && (
-                              <span className="text-[11px] text-gray-400">+{lecturer.expertise.length - 3}</span>
+                            )}
+                            {availStatus === "outside_hours" && (
+                              <span className="text-[10px] font-medium bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> Di luar jadwal
+                              </span>
                             )}
                           </div>
-                        )}
-                        {lecturer.availability && lecturer.availability.length > 0 && (
-                          <p className="text-xs text-gray-400 flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {lecturer.availability.slice(0, 3).map((a) => a.day.charAt(0).toUpperCase() + a.day.slice(1, 3)).join(", ")}
-                            {lecturer.availability.length > 3 && ` +${lecturer.availability.length - 3}`}
-                          </p>
-                        )}
-                      </div>
 
-                      {/* Book button */}
-                      <button
-                        onClick={() => handleBookLecturer(lecturer.userId)}
-                        disabled={submittingId !== null}
-                        className="shrink-0 bg-gray-900 dark:bg-white hover:bg-gray-700 dark:hover:bg-gray-100 text-white dark:text-gray-900 font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2 disabled:opacity-60"
-                      >
-                        {submittingId === lecturer.userId ? <><Spinner size="sm" /> Booking...</> : "Pilih Dosen"}
-                      </button>
+                          {lecturer.expertise && lecturer.expertise.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {lecturer.expertise.slice(0, 3).map((e) => (
+                                <span key={e} className={`text-[11px] px-2 py-0.5 rounded-full ${
+                                  isUnavailable
+                                    ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600"
+                                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                                }`}>
+                                  {e}
+                                </span>
+                              ))}
+                              {lecturer.expertise.length > 3 && (
+                                <span className="text-[11px] text-gray-400">+{lecturer.expertise.length - 3}</span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Availability reason (shown when unavailable) */}
+                          {isUnavailable && availReason ? (
+                            <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                              <Info className="w-3 h-3 shrink-0" />
+                              {availReason}
+                            </p>
+                          ) : (
+                            lecturer.availability && lecturer.availability.length > 0 && (
+                              <p className="text-xs text-gray-400 flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {lecturer.availability.slice(0, 3).map((a) => a.day.charAt(0).toUpperCase() + a.day.slice(1, 3)).join(", ")}
+                                {lecturer.availability.length > 3 && ` +${lecturer.availability.length - 3}`}
+                              </p>
+                            )
+                          )}
+                        </div>
+
+                        {/* Book button */}
+                        <button
+                          onClick={() => !isUnavailable && handleBookLecturer(lecturer.userId)}
+                          disabled={submittingId !== null || isUnavailable}
+                          title={isUnavailable ? availReason : undefined}
+                          className={`shrink-0 font-semibold py-2 px-4 rounded-xl text-sm transition-colors flex items-center gap-2 ${
+                            isUnavailable
+                              ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                              : "bg-gray-900 dark:bg-white hover:bg-gray-700 dark:hover:bg-gray-100 text-white dark:text-gray-900 disabled:opacity-60"
+                          }`}
+                        >
+                          {submittingId === lecturer.userId
+                            ? <><Spinner size="sm" /> Booking...</>
+                            : isUnavailable ? "Tidak Tersedia" : "Pilih Dosen"
+                          }
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
