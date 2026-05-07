@@ -1,122 +1,163 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { LoginPage } from "./pages/auth/Login";
+import { RegisterPage } from "./pages/auth/Register";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { StudentDashboard } from "./pages/dashboard/StudentDashboard";
+import { LecturerDashboard } from "./pages/dashboard/LecturerDashboard";
+import { LecturerSchedulePage } from "./pages/dashboard/LecturerSchedulePage";
+import { ProfilePage } from "./pages/profile/ProfilePage";
+import { BookingPage } from "./pages/consultation/BookingPage";
+import { BookingConfirmationPage } from "./pages/consultation/BookingConfirmationPage";
+import { HistoryPage } from "./pages/consultation/History";
+import { AIChatPage } from "./pages/chat/AIChatPage";
+import { NotFoundPage, ServerErrorPage, ForbiddenPage } from "./pages/errors/ErrorPage";
+import { HelpCenter } from "./pages/help/HelpCenter";
+import { StudentGuide } from "./pages/help/StudentGuide";
+import { LecturerGuide } from "./pages/help/LecturerGuide";
+
+import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      <div className="ticks"></div>
+        {/* Protected: Student only */}
+        <Route
+          path="/student"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <StudentDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/profile"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/find-lecturer"
+          element={<Navigate to="/student/book" replace />}
+        />
+        <Route
+          path="/student/book"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <BookingPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Canonical confirmation route */}
+        <Route
+          path="/student/booking-confirmation"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <BookingConfirmationPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Backward-compat redirect for old bookmarks / existing navigations */}
+        <Route
+          path="/student/ai-recommendation"
+          element={<Navigate to="/student/booking-confirmation" replace />}
+        />
+        <Route
+          path="/student/history"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/chat"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <AIChatPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* Protected: Lecturer only */}
+        <Route
+          path="/lecturer"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <LecturerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/profile"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/history"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/schedule"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <LecturerSchedulePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/chat"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <AIChatPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Help routes */}
+        <Route path="/help" element={<HelpCenter />} />
+        <Route
+          path="/student/help"
+          element={
+            <ProtectedRoute allowedRole="student">
+              <StudentGuide />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/lecturer/help"
+          element={
+            <ProtectedRoute allowedRole="lecturer">
+              <LecturerGuide />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Error routes */}
+        <Route path="/404" element={<NotFoundPage />} />
+        <Route path="/500" element={<ServerErrorPage />} />
+        <Route path="/403" element={<ForbiddenPage />} />
+        {/* Catch-all → 404 */}
+        <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
+  );
 }
 
-export default App
+export default App;
