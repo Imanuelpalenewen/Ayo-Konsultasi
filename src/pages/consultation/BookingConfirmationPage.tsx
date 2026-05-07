@@ -199,7 +199,7 @@ export function BookingConfirmationPage() {
     }
   };
 
-  // ── Loading ─────────────────────────────────────────────────────────────────
+  // Loading
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -208,7 +208,7 @@ export function BookingConfirmationPage() {
     );
   }
 
-  // ── Completely empty (no history at all) ────────────────────────────────────
+  // Completely empty (no history at all) 
   if (aiList.length === 0 && manualList.length === 0) {
     return (
       <DashboardLayout>
@@ -237,7 +237,7 @@ export function BookingConfirmationPage() {
     );
   }
 
-  // ── Detail vars (only computed when a consultation is selected) ──────────────
+  // Detail vars (only computed when a consultation is selected) 
   const lecturer = consultation ? (consultation as any).lecturer : null;
   const status = consultation ? (consultation.status as ConsultationStatus) : null;
   const bookingSource: BookingSource = activeTab;
@@ -528,7 +528,7 @@ export function BookingConfirmationPage() {
                       </div>
                     )}
 
-                    {/* XAI — only for AI-sourced bookings */}
+                    {/* explanable AI, only for AI-sourced bookings */}
                     {isAI && (
                       <div className="border-t border-gray-100 dark:border-gray-800">
                         <button

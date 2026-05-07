@@ -22,7 +22,7 @@ export function WeeklySchedule() {
 
       <div className="flex-1 p-5 overflow-y-auto">
         {schedule === undefined ? (
-          // Skeleton — 2 days with 1 session placeholder each
+          // Skeleton, 2 days with 1 session placeholder each
           <div className="space-y-6">
             {[0, 1].map((i) => (
               <div key={i} className="relative animate-pulse">

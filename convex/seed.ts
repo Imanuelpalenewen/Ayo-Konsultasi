@@ -4,20 +4,10 @@ import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { createAccount } from "@convex-dev/auth/server";
 
-/**
- * Seed official UNKLAB lecturer and student accounts for development/demo.
- *
- * Lecturer password: dosen123
- * Student password:  student123
- *
- * HOW TO RUN (run clearLecturers first to remove stale data):
- *   npx convex run seed:clearLecturers
- *   npx convex run seed:seedTestAccounts
- *   — OR — Convex Dashboard → Functions → seed → Run
- *
- * Pressman traceability: US-01, US-02 (reliability / test coverage)
- * Security: passwords are hashed by Convex Auth — never stored plain-text.
- */
+// ⚠️  DEV / DEMO ONLY — DO NOT RUN on the production Convex deployment.
+//     Lecturer password: dosen123  |  Student password: student123
+//     Run via: npx convex run seed:seedTestAccounts
+//              or Convex Dashboard → Functions → seed:seedTestAccounts → Run
 export const seedTestAccounts = action({
   args: {},
   handler: async (ctx) => {
@@ -30,9 +20,9 @@ export const seedTestAccounts = action({
     // - Dosen lain: 2–3 hari, jam bervariasi tapi masuk akal
 
     const accounts = [
-      // ── Dosen UNKLAB FILKOM (24 orang, data resmi Datadummy.xlsx) ──────────
+      // Dosen UNKLAB FILKOM (24 orang, data resmi Datadummy.xlsx)
 
-      // PIMPINAN — hanya 2 hari karena jabatan struktural
+      // PIMPINAN, hanya 2 hari karena jabatan struktural
       {
         name: "Stenly R. Pungus, S.Kom., MT., M.M., Ph.D",
         email: "stenly.pungus@unklab.ac.id",

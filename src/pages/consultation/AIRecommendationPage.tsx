@@ -130,7 +130,7 @@ export function AIRecommendationPage() {
     }
   };
 
-  // ── Loading ────────────────────────────────────────────────────────────────
+  // Loading 
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -139,7 +139,7 @@ export function AIRecommendationPage() {
     );
   }
 
-  // ── Empty State ────────────────────────────────────────────────────────────
+  // Empty State 
   if (!consultation) {
     return (
       <DashboardLayout>
@@ -169,7 +169,7 @@ export function AIRecommendationPage() {
     );
   }
 
-  // ── Has Consultation ───────────────────────────────────────────────────────
+  // Has Consultation 
   const lecturer = (consultation as any).lecturer;
   const status = consultation.status as ConsultationStatus;
   const timeline = buildTimeline(status);
@@ -191,7 +191,7 @@ export function AIRecommendationPage() {
     .join("")
     .toUpperCase() || "?";
 
-  // XAI checklist — derived from consultation data + lecturer expertise
+  // explanable AI checklist, derived from consultation data + lecturer expertise
   const xaiPoints = [
     `Topik "${consultation.topic}" sesuai dengan keahlian dosen`,
     `Jadwal konsultasi telah dikonfirmasi: ${formattedDate}`,
@@ -281,7 +281,7 @@ export function AIRecommendationPage() {
                 </div>
               </div>
 
-              {/* Meet link — shown only after lecturer accepts an online booking */}
+              {/* Meet link : shown only after lecturer accepts an online booking */}
               {status === "accepted" && consultation.locationType === "online" && consultation.meetLink && (
                 <div className="mx-5 mb-5 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-center gap-3">
                   <Video className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
@@ -300,7 +300,7 @@ export function AIRecommendationPage() {
                 </div>
               )}
 
-              {/* XAI section */}
+              {/* Explainable AI section */}
               <div className="border-t border-gray-100 dark:border-gray-800">
                 <button
                   type="button"

@@ -13,7 +13,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
  */
 export async function callAI(prompt: string): Promise<string> {
   const provider = process.env.AI_PROVIDER ?? "gemini";
-  console.log(`[aiProvider] Using provider: ${provider}`);
 
   if (provider === "mistral") {
     return callMistral(prompt);
@@ -25,10 +24,8 @@ export async function callAI(prompt: string): Promise<string> {
     const msg = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
     const isRateLimit = msg.includes("429") || msg.includes("quota") || msg.includes("rate");
     if (isRateLimit && process.env.MISTRAL_API_KEY) {
-      console.warn("[aiProvider] Gemini rate limit — falling back to Mistral");
       return callMistral(prompt);
     }
-    // Re-throw so the caller can handle it; don't silently return a string
     throw err;
   }
 }
@@ -37,19 +34,15 @@ async function callGemini(prompt: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY tidak dikonfigurasi di Convex Dashboard.");
   const modelName = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
-  console.log(`[aiProvider] Calling Gemini model: ${modelName}`);
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: modelName });
   const result = await model.generateContent(prompt);
-  const text = result.response.text();
-  console.log(`[aiProvider] Gemini response length: ${text.length} chars`);
-  return text;
+  return result.response.text();
 }
 
 async function callMistral(prompt: string): Promise<string> {
   const apiKey = process.env.MISTRAL_API_KEY;
   if (!apiKey) throw new Error("MISTRAL_API_KEY tidak dikonfigurasi di Convex Dashboard.");
-  console.log("[aiProvider] Calling Mistral mistral-small-latest");
   const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -68,7 +61,5 @@ async function callMistral(prompt: string): Promise<string> {
   const data = await response.json() as {
     choices: Array<{ message: { content: string } }>;
   };
-  const text = data.choices[0].message.content;
-  console.log(`[aiProvider] Mistral response length: ${text.length} chars`);
-  return text;
+  return data.choices[0].message.content;
 }

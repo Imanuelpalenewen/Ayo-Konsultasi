@@ -43,9 +43,9 @@ export function HistoryPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <HistoryIcon className="w-6 h-6 text-primary" />
-            Consultation History
+            Riwayat Konsultasi
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">View your past and upcoming consultations.</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Lihat riwayat konsultasimu yang lalu dan yang akan datang.</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">

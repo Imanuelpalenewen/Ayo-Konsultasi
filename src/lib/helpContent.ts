@@ -12,8 +12,8 @@ export const helpContent: Record<string, HelpSnippet> = {
     title: "Cara Menggunakan Dashboard",
     steps: [
       "Lihat ringkasan konsultasi (Pending, Diterima, Selesai) di bagian atas.",
-      "Klik 'Booking Konsultasi' untuk membuat jadwal baru.",
-      "Konsultasi mendatang tampil di kartu Aktivitas Terkini.",
+      "Klik 'Booking Konsultasi' atau '+ Permintaan Baru'untuk membuat jadwal baru.",
+      "Konsultasi mendatang tampil di kartu 'Belum Selesai'.",
     ],
     link: STUDENT_HELP,
   },
@@ -22,15 +22,15 @@ export const helpContent: Record<string, HelpSnippet> = {
     steps: [
       "Pilih topik dan deskripsikan kebutuhan konsultasimu.",
       "Pilih 'Rekomendasi AI' atau 'Pilih Manual' untuk menemukan dosen.",
-      "Tentukan tanggal, waktu, dan lokasi, lalu kirim permintaan.",
+      "Tentukan tanggal, waktu, dan mode pertemuan (online/onsite), lalu kirim permintaan.",
     ],
     link: STUDENT_HELP,
   },
   "booking-confirmation": {
     title: "Status Booking",
     steps: [
-      "Pending: Dosen belum merespons permintaanmu.",
-      "Diterima: Konsultasi dikonfirmasi — catat jadwalnya.",
+      "Dibatalkan : kamu atau dosen membatalkan konsultasi.",
+      "Diterima: Konsultasi dikonfirmasi, catat jadwalnya.",
       "Ditolak/Dialihkan: Lihat notifikasi untuk info lebih lanjut.",
     ],
     link: STUDENT_HELP,
@@ -47,7 +47,7 @@ export const helpContent: Record<string, HelpSnippet> = {
   "lecturer-dashboard": {
     title: "Dashboard Dosen",
     steps: [
-      "Lihat permintaan masuk di bagian 'Permintaan Konsultasi'.",
+      "Lihat permintaan masuk di bagian 'Incoming Requests  '.",
       "Klik Accept / Decline / Reassign untuk merespons permintaan.",
       "Jadwal mingguan ditampilkan di bagian bawah dashboard.",
     ],

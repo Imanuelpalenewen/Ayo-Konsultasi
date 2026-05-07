@@ -61,7 +61,7 @@ export function LoginPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f0f4f8]">
-      {/* ── LEFT PANEL: Form Card ── */}
+      {/* LEFT PANEL: Form Card */}
       <div className="flex w-full md:w-[480px] h-screen items-center justify-center px-6 md:px-12">
         <div className="w-full max-w-sm bg-white rounded-3xl shadow-xl p-8 md:p-10">
           {/* Logo */}
@@ -179,10 +179,10 @@ export function LoginPage() {
         </div>
       </div>
 
-      {/* ── RIGHT PANEL ── */}
+      {/* RIGHT PANEL */}
       <div className="hidden md:flex flex-1 h-screen items-center justify-center relative overflow-hidden bg-[#f0f4f8]">
 
-        {/* Radial glow — absolute background */}
+        {/* Radial glow, absolute background */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -190,7 +190,7 @@ export function LoginPage() {
           }}
         />
 
-        {/* Grid — absolute background, top area */}
+        {/* Grid, absolute background, top area */}
         <div
           className="absolute top-0 inset-x-0 flex justify-center pt-10 opacity-90 pointer-events-none"
         >
@@ -223,7 +223,7 @@ export function LoginPage() {
           </div>
         </div>
 
-        {/* Text block — true center of panel */}
+        {/* Text block, true center of panel */}
         <div className="relative z-10 text-center px-10 max-w-sm">
           <div className="inline-flex items-center gap-2 mb-5 bg-white/90 border border-gray-100 shadow-sm rounded-full px-4 py-1.5 backdrop-blur-sm">
             <Sparkles className="w-3.5 h-3.5 text-primary" />

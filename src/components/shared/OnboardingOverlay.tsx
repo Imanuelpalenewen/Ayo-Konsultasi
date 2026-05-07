@@ -16,7 +16,7 @@ export function OnboardingOverlay() {
       // Block all pointer events on the backdrop itself
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Glowing ? circle — the visual focal point */}
+      {/* Glowing circle, the visual focal point */}
       <div className="relative mb-8">
         {/* Outer pulse ring */}
         <span className="absolute inset-0 rounded-full bg-primary/30 animate-ping" />

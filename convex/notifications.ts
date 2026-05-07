@@ -43,7 +43,6 @@ export const markAsRead = mutation({
         await ctx.db.patch(args.notificationId, { isRead: true });
       }
     } else {
-      // Mark all as read
       const unread = await ctx.db
         .query("notifications")
         .withIndex("by_user_unread", (q) => q.eq("userId", userId).eq("isRead", false))

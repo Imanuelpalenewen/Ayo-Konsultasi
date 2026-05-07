@@ -75,7 +75,7 @@ const scheduleSections: GuideSection[] = [
       "Buka menu 'Profil' di sidebar, lalu pilih tab 'Jadwal Tersedia'.",
       "Centang hari-hari di mana kamu tersedia untuk konsultasi.",
       "Isi rentang jam mulai dan selesai untuk setiap hari.",
-      "Klik 'Simpan Jadwal' — jadwal ini langsung digunakan AI saat mencocokkan mahasiswa.",
+      "Klik 'Simpan Jadwal', jadwal ini langsung digunakan AI saat mencocokkan mahasiswa.",
       "Perbarui jadwal kapan saja jika ada perubahan ketersediaanmu.",
     ],
   },
@@ -87,8 +87,8 @@ const requestSections: GuideSection[] = [
     title: "Menerima atau Menolak Permintaan",
     steps: [
       "Permintaan masuk tampil di dashboard bagian 'Permintaan Konsultasi'.",
-      "Klik 'Accept' untuk menyetujui — mahasiswa akan mendapat notifikasi.",
-      "Klik 'Decline' jika tidak bisa — berikan alasan agar mahasiswa mengerti.",
+      "Klik 'Accept' untuk menyetujui, mahasiswa akan mendapat notifikasi.",
+      "Klik 'Decline' jika tidak bisa, berikan alasan agar mahasiswa mengerti.",
       "Status permintaan berubah otomatis dan riwayat tercatat di sistem.",
     ],
   },
@@ -113,7 +113,7 @@ const meetingSections: GuideSection[] = [
       "Temukan konsultasi yang berstatus 'Diterima'.",
       "Klik ikon edit atau tombol 'Tambah Link Meeting'.",
       "Tempel link Google Meet, Zoom, atau platform lain yang kamu gunakan.",
-      "Klik 'Simpan' — link akan otomatis terlihat oleh mahasiswa.",
+      "Klik 'Simpan' dan link akan otomatis terlihat oleh mahasiswa.",
     ],
   },
 ];
@@ -144,10 +144,10 @@ const faqs: QAItem[] = [
 const troubleshooting: QAItem[] = [
   {
     q: "Permintaan konsultasi tidak muncul di dashboard saya.",
-    a: "Coba refresh halaman. Pastikan koneksi internet stabil — Ayo Konsultasi menggunakan data real-time.",
+    a: "Coba refresh halaman. Pastikan koneksi internet stabil, Ayo Konsultasi menggunakan data real-time.",
   },
   {
-    q: "Saya tidak bisa login — kata sandi salah.",
+    q: "Saya tidak bisa login atau kata sandi salah.",
     a: "Pastikan email dan kata sandi benar (case-sensitive). Hubungi admin jika perlu reset akun.",
   },
   {
