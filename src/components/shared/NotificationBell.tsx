@@ -2,6 +2,7 @@ import { Bell, Video } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useState } from "react";
+import { SkeletonNotification } from "../shared/SkeletonPulse";
 
 const JITSI_PATTERN = / Link meeting: (https:\/\/meet\.jit\.si\/\S+)/;
 
@@ -13,8 +14,11 @@ function parseMeetLink(message: string): { text: string; meetLink: string | null
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
-  const unreadCount = useQuery(api.notifications.getUnreadCount) || 0;
-  const notifications = useQuery(api.notifications.getMyNotifications) || [];
+  const unreadCountRaw = useQuery(api.notifications.getUnreadCount);
+  const notificationsRaw = useQuery(api.notifications.getMyNotifications);
+  const unreadCount = unreadCountRaw ?? 0;
+  const notifications = notificationsRaw ?? [];
+  const isLoadingNotifs = notificationsRaw === undefined;
   const markAsRead = useMutation(api.notifications.markAsRead);
 
   const toggleDropdown = () => {
@@ -43,8 +47,14 @@ export function NotificationBell() {
           <div className="p-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
             <h3 className="font-semibold text-gray-800 dark:text-gray-100">Notifications</h3>
           </div>
-          <div className="max-h-[300px] overflow-y-auto">
-            {notifications.length === 0 ? (
+          <div className="max-h-75 overflow-y-auto">
+            {isLoadingNotifs ? (
+              <>
+                <SkeletonNotification />
+                <SkeletonNotification />
+                <SkeletonNotification />
+              </>
+            ) : notifications.length === 0 ? (
               <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
                 No notifications
               </div>

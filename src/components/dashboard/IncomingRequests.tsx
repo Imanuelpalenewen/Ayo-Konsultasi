@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Spinner } from "../../components/shared/Spinner";
 import { EmptyState } from "../../components/shared/EmptyState";
+import { SkeletonRequestCard } from "../../components/shared/SkeletonPulse";
 
 type RecommendResult = {
   lecturerId: string;
@@ -341,8 +342,9 @@ export function IncomingRequests() {
         </div>
         <div className="flex-1 overflow-y-auto">
           {requests === undefined ? (
-            <div className="h-full flex items-center justify-center p-8">
-              <Spinner size="lg" />
+            <div className="divide-y divide-gray-100 dark:divide-gray-700">
+              <SkeletonRequestCard />
+              <SkeletonRequestCard />
             </div>
           ) : pendingRequests.length === 0 ? (
             <EmptyState

@@ -67,7 +67,7 @@ export function GlobalSearch() {
       ? [
           { title: "Beranda", href: "/student", subtitle: "Dashboard mahasiswa" },
           { title: "Booking Konsultasi", href: "/student/book", subtitle: "Cari dosen dengan AI & buat jadwal" },
-          { title: "Rekomendasi AI", href: "/student/ai-recommendation", subtitle: "Lihat rekomendasi dan status konsultasi" },
+          { title: "Detail Konsultasi", href: "/student/booking-confirmation", subtitle: "Lihat status dan detail konsultasi aktif" },
           { title: "Riwayat", href: "/student/history", subtitle: "Histori konsultasi" },
           { title: "Tanya AI", href: "/student/chat", subtitle: "Chat dengan asisten UNKLAB" },
           { title: "Profil", href: "/student/profile", subtitle: "Pengaturan akun" },

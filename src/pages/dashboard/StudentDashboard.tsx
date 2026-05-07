@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { SkeletonBlock, SkeletonText } from "../../components/shared/SkeletonPulse";
 
 function getStatusBadge(status: string) {
   if (status === "accepted") return (
@@ -36,7 +37,9 @@ function getStatusBadge(status: string) {
 
 export function StudentDashboard() {
   const user = useCurrentUser();
-  const history = useQuery(api.consultations.getStudentHistory) || [];
+  const historyData = useQuery(api.consultations.getStudentHistory);
+  const isLoadingHistory = historyData === undefined;
+  const history = historyData ?? [];
 
   const upcomingConsultations = history.filter(h => h.status === "accepted");
   const pendingRequests = history.filter(h => h.status === "pending");
@@ -117,7 +120,24 @@ export function StudentDashboard() {
             </div>
           </div>
 
-          {recentConsultations.length === 0 ? (
+          {isLoadingHistory ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 animate-pulse space-y-3">
+                  <div className="flex items-start justify-between">
+                    <SkeletonBlock className="h-6 w-24 rounded-full" />
+                    <SkeletonText className="w-16" />
+                  </div>
+                  <SkeletonBlock className="h-5 w-3/4 rounded-lg" />
+                  <SkeletonText className="w-1/2" />
+                  <div className="flex gap-4 pt-1">
+                    <SkeletonText className="w-20" />
+                    <SkeletonText className="w-16" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : recentConsultations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-6">
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
                 <span className="text-3xl">📅</span>

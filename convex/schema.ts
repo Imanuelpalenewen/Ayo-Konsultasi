@@ -79,12 +79,16 @@ export default defineSchema({
     reassignedTo: v.optional(v.id("users")),
     reassignReason: v.optional(v.string()),
 
+    // "ai" | "manual" — which path the student used to pick the lecturer
+    bookingSource: v.optional(v.union(v.literal("ai"), v.literal("manual"))),
+
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_student", ["studentId"])
     .index("by_lecturer", ["lecturerId"])
-    .index("by_status", ["status"]),
+    .index("by_status", ["status"])
+    .index("by_lecturer_date", ["lecturerId", "date"]),
 
   /**
    * Notifications Table

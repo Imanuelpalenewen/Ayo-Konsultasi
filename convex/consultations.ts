@@ -1,7 +1,9 @@
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
+
+const DAY_NAMES_LC = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
 export const createConsultation = mutation({
   args: {
@@ -12,6 +14,7 @@ export const createConsultation = mutation({
     notes: v.optional(v.string()),
     locationType: v.union(v.literal("online"), v.literal("tatap_muka")),
     locationDetail: v.optional(v.string()),
+    bookingSource: v.optional(v.union(v.literal("ai"), v.literal("manual"))),
   },
   handler: async (ctx, args) => {
     const studentId = await getAuthUserId(ctx);
@@ -20,6 +23,46 @@ export const createConsultation = mutation({
     const selectedDateTime = new Date(`${args.date}T${args.time}`);
     if (selectedDateTime.getTime() < Date.now()) {
       throw new Error("Cannot book a consultation in the past");
+    }
+
+    // Defense-in-depth: validate lecturer availability window (only if slots are configured)
+    const lecturerProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", args.lecturerId))
+      .unique();
+
+    if (lecturerProfile) {
+      const availability = lecturerProfile.availability ?? [];
+      if (availability.length > 0) {
+        const dayOfWeek = DAY_NAMES_LC[new Date(args.date + "T00:00:00Z").getUTCDay()];
+        const hasSlot = availability.some(
+          (slot) =>
+            slot.day === dayOfWeek &&
+            slot.startTime <= args.time &&
+            args.time <= slot.endTime
+        );
+        if (!hasSlot) {
+          throw new ConvexError({ code: "OUTSIDE_HOURS", lecturerId: args.lecturerId });
+        }
+      }
+    }
+
+    // Reject if lecturer already has a pending/accepted booking at the exact same slot
+    const sameSlotBookings = await ctx.db
+      .query("consultations")
+      .withIndex("by_lecturer_date", (q) =>
+        q.eq("lecturerId", args.lecturerId).eq("date", args.date)
+      )
+      .collect();
+
+    const hasConflict = sameSlotBookings.some(
+      (c) =>
+        c.time === args.time &&
+        (c.status === "pending" || c.status === "accepted")
+    );
+
+    if (hasConflict) {
+      throw new ConvexError({ code: "SLOT_TAKEN", lecturerId: args.lecturerId });
     }
 
     const consultationId = await ctx.db.insert("consultations", {
@@ -31,6 +74,7 @@ export const createConsultation = mutation({
       notes: args.notes,
       locationType: args.locationType,
       locationDetail: args.locationDetail,
+      bookingSource: args.bookingSource,
       status: "pending",
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -210,6 +254,99 @@ export const reassignConsultation = mutation({
       type: "new_booking",
       message: `Anda menerima reassign dari ${reassigningLecturerProfile?.name || "dosen lain"} tentang "${consultation.topic}". Alasan: ${reason}`,
       relatedId: consultation._id,
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Student-initiated lecturer swap on a pending consultation.
+ * Updates lecturerId in-place — no duplicate record created.
+ * Validates the new lecturer's availability and checks for conflicts.
+ */
+export const studentChangeLecturer = mutation({
+  args: {
+    consultationId: v.id("consultations"),
+    newLecturerId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const studentId = await getAuthUserId(ctx);
+    if (!studentId) throw new Error("Not authenticated");
+
+    const consultation = await ctx.db.get(args.consultationId);
+    if (!consultation) throw new Error("Consultation not found");
+    if (consultation.studentId !== studentId) throw new Error("Unauthorized");
+    if (consultation.status !== "pending") {
+      throw new ConvexError({ code: "NOT_PENDING" });
+    }
+
+    // Availability + conflict check for new lecturer
+    const newLecturerProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", args.newLecturerId))
+      .unique();
+
+    if (newLecturerProfile) {
+      const availability = newLecturerProfile.availability ?? [];
+      if (availability.length > 0) {
+        const dayOfWeek = DAY_NAMES_LC[new Date(consultation.date + "T00:00:00Z").getUTCDay()];
+        const hasSlot = availability.some(
+          (slot) =>
+            slot.day === dayOfWeek &&
+            slot.startTime <= consultation.time &&
+            consultation.time <= slot.endTime
+        );
+        if (!hasSlot) {
+          throw new ConvexError({ code: "OUTSIDE_HOURS", lecturerId: args.newLecturerId });
+        }
+      }
+    }
+
+    const sameSlotBookings = await ctx.db
+      .query("consultations")
+      .withIndex("by_lecturer_date", (q) =>
+        q.eq("lecturerId", args.newLecturerId).eq("date", consultation.date)
+      )
+      .collect();
+
+    const hasConflict = sameSlotBookings.some(
+      (c) =>
+        c._id !== consultation._id &&
+        c.time === consultation.time &&
+        (c.status === "pending" || c.status === "accepted")
+    );
+
+    if (hasConflict) {
+      throw new ConvexError({ code: "SLOT_TAKEN", lecturerId: args.newLecturerId });
+    }
+
+    const oldLecturerId = consultation.lecturerId;
+
+    await ctx.db.patch(args.consultationId, {
+      lecturerId: args.newLecturerId,
+      updatedAt: Date.now(),
+    });
+
+    const studentProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", studentId))
+      .unique();
+
+    // Notify old lecturer: booking withdrawn
+    await ctx.runMutation(internal.notifications.createNotification, {
+      userId: oldLecturerId,
+      type: "booking_cancelled",
+      message: `Mahasiswa ${studentProfile?.name || "seseorang"} mengganti dosen untuk konsultasi tentang "${consultation.topic}".`,
+      relatedId: args.consultationId,
+    });
+
+    // Notify new lecturer: new booking
+    await ctx.runMutation(internal.notifications.createNotification, {
+      userId: args.newLecturerId,
+      type: "new_booking",
+      message: `Mahasiswa ${studentProfile?.name || "seseorang"} mengajukan konsultasi tentang "${consultation.topic}".`,
+      relatedId: args.consultationId,
     });
 
     return { success: true };

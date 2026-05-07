@@ -34,13 +34,14 @@ Lecturers Data:
 ${JSON.stringify(lecturerData, null, 2)}
 
 Respond ONLY in valid JSON format. Do not use markdown blocks like \`\`\`json. Return an array of up to 3 objects. IMPORTANT: Do NOT duplicate lecturers. If there is only 1 or 2 lecturers provided in the Lecturers Data, return an array of exactly that size.
+IMPORTANT: The "matchReason" field MUST be written in Bahasa Indonesia. Keep it concise (1-2 sentences).
 Format:
 [
   {
     "lecturerId": "id",
     "lecturerName": "name",
     "matchScore": 95,
-    "matchReason": "Short explanation of why this is a good match based on expertise.",
+    "matchReason": "Penjelasan singkat mengapa dosen ini cocok berdasarkan keahlian dan ketersediaan jadwal.",
     "suggestedSlots": ["Monday 09:00", "Tuesday 10:00"]
   }
 ]
@@ -109,13 +110,14 @@ Available lecturers (excluding the current one):
 ${JSON.stringify(candidateData, null, 2)}
 
 Respond ONLY in valid JSON format. Do not use markdown blocks like \`\`\`json. Return an array of up to 3 objects. IMPORTANT: Do NOT duplicate lecturers. If fewer than 3 candidates exist, return an array of exactly that size.
+IMPORTANT: The "matchReason" field MUST be written in Bahasa Indonesia. Keep it concise (1-2 sentences).
 Format:
 [
   {
     "lecturerId": "id",
     "lecturerName": "name",
     "matchScore": 90,
-    "matchReason": "Short explanation of why this lecturer is a good fit for reassignment.",
+    "matchReason": "Penjelasan singkat mengapa dosen ini cocok untuk menerima konsultasi yang dialihkan.",
     "suggestedSlots": ["Monday 09:00", "Wednesday 10:00"]
   }
 ]

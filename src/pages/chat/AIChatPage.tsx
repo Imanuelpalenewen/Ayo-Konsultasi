@@ -234,8 +234,12 @@ export function AIChatPage() {
           {/* Typing indicator */}
           {isLoading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-700 dark:bg-gray-600 shrink-0 flex items-center justify-center mt-0.5">
-                <Bot className="w-4 h-4 text-white" />
+              {/* Bot avatar with pulse ring */}
+              <div className="relative shrink-0 mt-0.5">
+                <span className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: "1.4s" }} />
+                <div className="relative w-8 h-8 rounded-full bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
               </div>
               <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm flex flex-col gap-1.5 min-w-55">
                 <div className="flex items-center gap-2">
