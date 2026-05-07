@@ -1,7 +1,7 @@
 import { Users, CheckCircle, Clock } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Spinner } from "../shared/Spinner";
+import { SkeletonStatCard } from "../shared/SkeletonPulse";
 
 export function LecturerStats() {
   const stats = useQuery(api.consultations.getLecturerStats);
@@ -36,11 +36,7 @@ export function LecturerStats() {
   if (stats === undefined) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
-            <Spinner size="sm" className="h-16" />
-          </div>
-        ))}
+        {[0, 1, 2].map((i) => <SkeletonStatCard key={i} />)}
       </div>
     );
   }

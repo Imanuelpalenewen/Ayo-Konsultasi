@@ -3,8 +3,8 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { History as HistoryIcon, Clock, CheckCircle, XCircle, SearchX, Video } from "lucide-react";
+import { SkeletonTableRow } from "../../components/shared/SkeletonPulse";
 import type { Id } from "../../../convex/_generated/dataModel";
-import { Spinner } from "../../components/shared/Spinner";
 import { EmptyState } from "../../components/shared/EmptyState";
 
 export function HistoryPage() {
@@ -64,11 +64,9 @@ export function HistoryPage() {
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {!history ? (
-                  <tr>
-                    <td colSpan={5} className="p-16">
-                      <Spinner size="lg" />
-                    </td>
-                  </tr>
+                  <>
+                    {[0, 1, 2, 3, 4].map((i) => <SkeletonTableRow key={i} cols={5} />)}
+                  </>
                 ) : history.length === 0 ? (
                   <tr>
                     <td colSpan={5}>

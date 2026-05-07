@@ -24,6 +24,7 @@ import { Calendar as CalendarPicker } from "../../components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../../components/ui/popover";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { Spinner } from "../../components/shared/Spinner";
+import { AIThinkingOrb } from "../../components/shared/SkeletonPulse";
 import { AMPMBadge } from "../../components/shared/AMPMBadge";
 
 type Step = "form" | "searching" | "results";
@@ -126,12 +127,19 @@ export function BookingPage() {
 
     const preferredDatesStr = `${format(selectedDate, "EEEE, d MMMM yyyy", { locale: idLocale })} pukul ${time} WITA`;
 
+    // Minimum 3 s display so all 3 loading messages have time to cycle.
+    // The AI result and the timer race — whichever finishes last wins.
+    const MIN_DISPLAY_MS = 3000;
+
     try {
-      const results = (await recommendLecturers({
-        topic: effectiveTopic,
-        description,
-        preferredDates: preferredDatesStr,
-      })) as Recommendation[];
+      const [results] = await Promise.all([
+        recommendLecturers({
+          topic: effectiveTopic,
+          description,
+          preferredDates: preferredDatesStr,
+        }) as Promise<Recommendation[]>,
+        new Promise<void>((res) => setTimeout(res, MIN_DISPLAY_MS)),
+      ]);
       setRecommendations(results);
       setStep("results");
     } catch (err: unknown) {
@@ -396,27 +404,9 @@ export function BookingPage() {
 
         {/* ════════════════ Loading ════════════════ */}
         {step === "searching" && (
-          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-10 flex flex-col items-center justify-center gap-4 min-h-50">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary blur-2xl opacity-20 rounded-full animate-pulse" />
-              <Sparkles className="w-10 h-10 text-primary animate-pulse relative z-10" />
-            </div>
-            <p className="text-base font-medium text-gray-800 dark:text-white transition-all">
-              {LOADING_MESSAGES[loadingMsgIdx]}
-            </p>
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex gap-1">
-                {LOADING_MESSAGES.map((_, i) => (
-                  <span
-                    key={i}
-                    className={`block w-1.5 h-1.5 rounded-full transition-all duration-500 ${
-                      i === loadingMsgIdx ? "bg-primary scale-125" : "bg-gray-200 dark:bg-gray-700"
-                    }`}
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-gray-400 mt-1">Biasanya membutuhkan 5–10 detik</p>
-            </div>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-10">
+            <AIThinkingOrb message={LOADING_MESSAGES[loadingMsgIdx]} />
+            <p className="text-xs text-gray-400 text-center mt-2">Biasanya membutuhkan 5–10 detik</p>
           </div>
         )}
 

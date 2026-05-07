@@ -2,7 +2,7 @@ import { Calendar, Video, MapPin } from "lucide-react";
 import { useQuery } from "convex/react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
-import { Spinner } from "../shared/Spinner";
+import { SkeletonTimelineSession, SkeletonText } from "../shared/SkeletonPulse";
 
 export function WeeklySchedule() {
   const navigate = useNavigate();
@@ -22,7 +22,20 @@ export function WeeklySchedule() {
 
       <div className="flex-1 p-5 overflow-y-auto">
         {schedule === undefined ? (
-          <Spinner className="mt-8" />
+          // Skeleton — 2 days with 1 session placeholder each
+          <div className="space-y-6">
+            {[0, 1].map((i) => (
+              <div key={i} className="relative animate-pulse">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0" />
+                  <SkeletonText className="w-16" />
+                </div>
+                <div className="ml-4 pl-8 border-l-2 border-gray-100 dark:border-gray-700">
+                  <SkeletonTimelineSession />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <div className="space-y-6">
             {schedule.map((dayPlan, i) => (

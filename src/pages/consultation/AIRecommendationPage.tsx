@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../../convex/_generated/api";
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
 import { AMPMBadge } from "../../components/shared/AMPMBadge";
-import { Spinner } from "../../components/shared/Spinner";
+import { SkeletonRecommendationPage } from "../../components/shared/SkeletonPulse";
+import { Loader2 } from "lucide-react";
 import {
   Sparkles,
   Calendar,
@@ -133,9 +134,7 @@ export function AIRecommendationPage() {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <Spinner size="md" />
-        </div>
+        <SkeletonRecommendationPage />
       </DashboardLayout>
     );
   }
@@ -350,7 +349,7 @@ export function AIRecommendationPage() {
                       disabled={isCancelling}
                       className="flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-700 border border-red-200 dark:border-red-800 hover:border-red-400 px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                     >
-                      {isCancelling ? <Spinner size="sm" /> : null}
+                      {isCancelling ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                       Batalkan Permintaan
                     </button>
                     {cancelError && <p className="text-xs text-red-500 w-full">{cancelError}</p>}
@@ -391,24 +390,33 @@ export function AIRecommendationPage() {
                     <li key={idx} className="flex gap-3">
                       {/* Dot + line */}
                       <div className="flex flex-col items-center">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
-                          step.state === "done"
-                            ? "bg-green-500 text-white"
-                            : step.state === "active"
-                            ? "bg-amber-500 text-white"
-                            : step.state === "error"
-                            ? "bg-red-400 text-white"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                        }`}>
-                          {step.state === "done" ? (
-                            <CheckCircle2 className="w-4 h-4" />
-                          ) : step.state === "active" ? (
-                            <Clock className="w-4 h-4" />
-                          ) : step.state === "error" ? (
-                            <XCircle className="w-4 h-4" />
-                          ) : (
-                            <Circle className="w-3 h-3" />
+                        <div className="relative flex items-center justify-center shrink-0">
+                          {/* Shockwave rings — only on active step */}
+                          {step.state === "active" && (
+                            <>
+                              <span className="absolute w-12 h-12 rounded-full bg-amber-400/20 animate-ping" style={{ animationDuration: "1.8s" }} />
+                              <span className="absolute w-9 h-9 rounded-full bg-amber-400/25 animate-ping" style={{ animationDuration: "1.4s", animationDelay: "0.2s" }} />
+                            </>
                           )}
+                          <div className={`relative w-7 h-7 rounded-full flex items-center justify-center ${
+                            step.state === "done"
+                              ? "bg-green-500 text-white"
+                              : step.state === "active"
+                              ? "bg-amber-500 text-white"
+                              : step.state === "error"
+                              ? "bg-red-400 text-white"
+                              : "bg-gray-100 dark:bg-gray-800 text-gray-400"
+                          }`}>
+                            {step.state === "done" ? (
+                              <CheckCircle2 className="w-4 h-4" />
+                            ) : step.state === "active" ? (
+                              <Clock className="w-4 h-4" />
+                            ) : step.state === "error" ? (
+                              <XCircle className="w-4 h-4" />
+                            ) : (
+                              <Circle className="w-3 h-3" />
+                            )}
+                          </div>
                         </div>
                         {!isLast && (
                           <div className={`w-px flex-1 my-1 min-h-[20px] ${

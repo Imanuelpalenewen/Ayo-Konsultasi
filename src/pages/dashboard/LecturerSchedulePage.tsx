@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { DashboardLayout } from "../../components/shared/DashboardLayout";
-import { Spinner } from "../../components/shared/Spinner";
+import { SkeletonScheduleDayCard } from "../../components/shared/SkeletonPulse";
 import { Calendar, Clock, Video, MapPin, X, Copy } from "lucide-react";
 
 type Session = {
@@ -126,7 +126,9 @@ export function LecturerSchedulePage() {
         </div>
 
         {schedule === undefined ? (
-          <Spinner className="mt-16" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[0, 1, 2, 3, 4].map((i) => <SkeletonScheduleDayCard key={i} />)}
+          </div>
         ) : totalSessions === 0 ? (
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-12 text-center">
             <Calendar className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
