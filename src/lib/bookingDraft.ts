@@ -11,6 +11,8 @@ export interface BookingDraft {
   time: string;
   bookingMode: "ai" | "manual";
   savedAt: number;
+  // When set, BookingPage will update this consultation's lecturer instead of creating a new one
+  replaceConsultationId?: string;
 }
 
 export function saveDraft(draft: Omit<BookingDraft, "savedAt">): void {

@@ -173,11 +173,11 @@ export function BookingConfirmationPage() {
       customTopic: isPreset ? "" : consultation.topic,
       description: (consultation as any).notes ?? "",
       locationType: consultation.locationType ?? "",
-      // "Jitsi" is an internal placeholder for online — restore as empty for user to re-enter
       locationDetail: consultation.locationDetail === "Jitsi" ? "" : (consultation.locationDetail ?? ""),
       selectedDate: consultation.date,
       time: consultation.time,
       bookingMode: "manual",
+      replaceConsultationId: consultation._id,
     });
     navigate("/student/book");
   };

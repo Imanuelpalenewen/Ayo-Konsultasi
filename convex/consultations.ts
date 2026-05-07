@@ -260,6 +260,99 @@ export const reassignConsultation = mutation({
   },
 });
 
+/**
+ * Student-initiated lecturer swap on a pending consultation.
+ * Updates lecturerId in-place — no duplicate record created.
+ * Validates the new lecturer's availability and checks for conflicts.
+ */
+export const studentChangeLecturer = mutation({
+  args: {
+    consultationId: v.id("consultations"),
+    newLecturerId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    const studentId = await getAuthUserId(ctx);
+    if (!studentId) throw new Error("Not authenticated");
+
+    const consultation = await ctx.db.get(args.consultationId);
+    if (!consultation) throw new Error("Consultation not found");
+    if (consultation.studentId !== studentId) throw new Error("Unauthorized");
+    if (consultation.status !== "pending") {
+      throw new ConvexError({ code: "NOT_PENDING" });
+    }
+
+    // Availability + conflict check for new lecturer
+    const newLecturerProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", args.newLecturerId))
+      .unique();
+
+    if (newLecturerProfile) {
+      const availability = newLecturerProfile.availability ?? [];
+      if (availability.length > 0) {
+        const dayOfWeek = DAY_NAMES_LC[new Date(consultation.date + "T00:00:00Z").getUTCDay()];
+        const hasSlot = availability.some(
+          (slot) =>
+            slot.day === dayOfWeek &&
+            slot.startTime <= consultation.time &&
+            consultation.time <= slot.endTime
+        );
+        if (!hasSlot) {
+          throw new ConvexError({ code: "OUTSIDE_HOURS", lecturerId: args.newLecturerId });
+        }
+      }
+    }
+
+    const sameSlotBookings = await ctx.db
+      .query("consultations")
+      .withIndex("by_lecturer_date", (q) =>
+        q.eq("lecturerId", args.newLecturerId).eq("date", consultation.date)
+      )
+      .collect();
+
+    const hasConflict = sameSlotBookings.some(
+      (c) =>
+        c._id !== consultation._id &&
+        c.time === consultation.time &&
+        (c.status === "pending" || c.status === "accepted")
+    );
+
+    if (hasConflict) {
+      throw new ConvexError({ code: "SLOT_TAKEN", lecturerId: args.newLecturerId });
+    }
+
+    const oldLecturerId = consultation.lecturerId;
+
+    await ctx.db.patch(args.consultationId, {
+      lecturerId: args.newLecturerId,
+      updatedAt: Date.now(),
+    });
+
+    const studentProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", studentId))
+      .unique();
+
+    // Notify old lecturer: booking withdrawn
+    await ctx.runMutation(internal.notifications.createNotification, {
+      userId: oldLecturerId,
+      type: "booking_cancelled",
+      message: `Mahasiswa ${studentProfile?.name || "seseorang"} mengganti dosen untuk konsultasi tentang "${consultation.topic}".`,
+      relatedId: args.consultationId,
+    });
+
+    // Notify new lecturer: new booking
+    await ctx.runMutation(internal.notifications.createNotification, {
+      userId: args.newLecturerId,
+      type: "new_booking",
+      message: `Mahasiswa ${studentProfile?.name || "seseorang"} mengajukan konsultasi tentang "${consultation.topic}".`,
+      relatedId: args.consultationId,
+    });
+
+    return { success: true };
+  },
+});
+
 /** Returns the Monday of the ISO week containing `now` at 00:00:00.000 UTC. */
 function getISOWeekBounds(now: Date): { monday: Date; sunday: Date } {
   const day = now.getUTCDay() === 0 ? 7 : now.getUTCDay(); // Sun=7

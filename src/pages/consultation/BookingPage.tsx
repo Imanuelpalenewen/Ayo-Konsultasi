@@ -54,6 +54,7 @@ export function BookingPage() {
   const navigate = useNavigate();
   const recommendLecturers = useAction(api.ai.recommendLecturers);
   const createConsultation = useMutation(api.consultations.createConsultation);
+  const studentChangeLecturer = useMutation(api.consultations.studentChangeLecturer);
   const allLecturers = useQuery(api.users.getLecturers); // for expertise tags
 
   // ── Mode ──────────────────────────────────────────────────────
@@ -95,6 +96,7 @@ export function BookingPage() {
 
   // ── Draft persistence ─────────────────────────────────────────
   const [draftRestored, setDraftRestored] = useState(false);
+  const [replaceConsultationId, setReplaceConsultationId] = useState<string | null>(null);
 
   // Hydrate from sessionStorage on mount
   useEffect(() => {
@@ -108,6 +110,7 @@ export function BookingPage() {
     setTime(draft.time);
     setBookingMode(draft.bookingMode);
     if (draft.selectedDate) setSelectedDate(new Date(draft.selectedDate + "T00:00:00"));
+    if (draft.replaceConsultationId) setReplaceConsultationId(draft.replaceConsultationId);
     setDraftRestored(true);
     // Auto-jump to manual picker if form is fully valid
     if (draft.bookingMode === "manual" && isDraftComplete(draft)) {
@@ -145,6 +148,7 @@ export function BookingPage() {
     setStep("form");
     setDraftRestored(false);
     setSearchError("");
+    setReplaceConsultationId(null);
   };
 
   // Cycle loading messages every 3s during AI search
@@ -266,16 +270,24 @@ export function BookingPage() {
     setSubmittingId(lecturerId);
 
     try {
-      await createConsultation({
-        lecturerId: lecturerId as Id<"users">,
-        date: format(selectedDate, "yyyy-MM-dd"),
-        time,
-        topic: effectiveTopic,
-        notes: description,
-        locationType,
-        locationDetail: locationType === "online" ? "Jitsi" : locationDetail.trim(),
-        bookingSource: bookingMode,
-      });
+      if (replaceConsultationId) {
+        // Update lecturer on existing consultation — no duplicate created
+        await studentChangeLecturer({
+          consultationId: replaceConsultationId as Id<"consultations">,
+          newLecturerId: lecturerId as Id<"users">,
+        });
+      } else {
+        await createConsultation({
+          lecturerId: lecturerId as Id<"users">,
+          date: format(selectedDate, "yyyy-MM-dd"),
+          time,
+          topic: effectiveTopic,
+          notes: description,
+          locationType,
+          locationDetail: locationType === "online" ? "Jitsi" : locationDetail.trim(),
+          bookingSource: bookingMode,
+        });
+      }
       clearDraft();
       navigate("/student/booking-confirmation", {
         state: {
@@ -289,6 +301,8 @@ export function BookingPage() {
         setBookingError(`Slot ${time} pada tanggal ${format(selectedDate, "d MMM yyyy", { locale: idLocale })} sudah terisi oleh booking lain. Pilih dosen lain atau ubah waktu.`);
       } else if (code === "OUTSIDE_HOURS") {
         setBookingError(`Dosen ini tidak memiliki jadwal pada ${format(selectedDate, "EEEE, d MMM yyyy", { locale: idLocale })} pukul ${time}. Pilih dosen yang tersedia atau ubah tanggal/jam.`);
+      } else if (code === "NOT_PENDING") {
+        setBookingError("Konsultasi ini sudah tidak berstatus pending dan tidak bisa diganti dosennya.");
       } else {
         setBookingError("Gagal membuat booking. Silakan coba lagi.");
       }
@@ -677,6 +691,14 @@ export function BookingPage() {
               </button>
             </div>
 
+            {/* Replace-mode banner */}
+            {replaceConsultationId && (
+              <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl px-4 py-2.5 text-sm text-blue-700 dark:text-blue-300">
+                <UserCheck className="w-4 h-4 shrink-0" />
+                <span>Pilih dosen baru — yang dipilih akan <strong>menggantikan</strong> dosen sebelumnya pada konsultasi yang sama.</span>
+              </div>
+            )}
+
             {/* Booking recap */}
             {bookingSummary && (
               <div className="flex flex-wrap gap-2 items-center bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-2.5 text-xs text-gray-600 dark:text-gray-400">
@@ -875,8 +897,8 @@ export function BookingPage() {
                           }`}
                         >
                           {submittingId === lecturer.userId
-                            ? <><Spinner size="sm" /> Booking...</>
-                            : isUnavailable ? "Tidak Tersedia" : "Pilih Dosen"
+                            ? <><Spinner size="sm" /> {replaceConsultationId ? "Mengganti..." : "Booking..."}</>
+                            : isUnavailable ? "Tidak Tersedia" : replaceConsultationId ? "Ganti Dosen" : "Pilih Dosen"
                           }
                         </button>
                       </div>
