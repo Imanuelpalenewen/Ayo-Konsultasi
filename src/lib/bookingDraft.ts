@@ -19,7 +19,7 @@ export function saveDraft(draft: Omit<BookingDraft, "savedAt">): void {
   try {
     const payload: BookingDraft = { ...draft, savedAt: Date.now() };
     sessionStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
-  } catch { /* sessionStorage unavailable — silent fail */ }
+  } catch { /* sessionStorage unavailable, silent fail */ }
 }
 
 export function loadDraft(): BookingDraft | null {

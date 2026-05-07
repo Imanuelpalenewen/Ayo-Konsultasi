@@ -49,7 +49,6 @@ Format:
 
     try {
       const responseText = await callAI(prompt);
-      console.log("[ai:recommendLecturers] Raw response:", responseText.slice(0, 300));
 
       // Strip any markdown code fences the model may have included
       const cleaned = responseText
@@ -125,7 +124,6 @@ Format:
 
     try {
       const responseText = await callAI(prompt);
-      console.log("[ai:recommendReassignTargets] Raw response:", responseText.slice(0, 300));
 
       const cleaned = responseText
         .replace(/```json\s*/gi, "")

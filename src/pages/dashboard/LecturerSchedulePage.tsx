@@ -92,7 +92,7 @@ function SessionDetailModal({ session, onClose }: { session: Session; onClose: (
 
           {isOnline && !session.meetLink && (
             <p className="text-xs text-gray-400 italic">
-              Link meeting belum tersedia — akan muncul setelah konsultasi diterima.
+              Link meeting belum tersedia, akan muncul setelah konsultasi diterima.
             </p>
           )}
         </div>

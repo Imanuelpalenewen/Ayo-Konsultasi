@@ -3,15 +3,7 @@ import { getAuthUserId, retrieveAccount, modifyAccountCredentials } from "@conve
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
-/**
- * Validate that a user's chosen role matches their actual profile role
- * before proceeding with login. Throws an error if:
- * - Profile not found (email not registered at all)
- * - Profile role does not match the expected role
- *
- * This is a READ-ONLY check — must be a query, not a mutation.
- * Pressman: reliability (R-01 — prevent unauthorized role escalation)
- */
+// Verify email+role match before login, prevents role escalation (R-01).
 export const validateRole = query({
   args: { 
     email: v.string(), 
@@ -37,12 +29,6 @@ export const validateRole = query({
   },
 });
 
-/**
- * Get the current authenticated user's profile.
- * Returns null if not logged in.
- * Used by: useCurrentUser() hook, ProtectedRoute
- * Pressman traceability: US-01, US-02
- */
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
@@ -58,11 +44,6 @@ export const getCurrentUser = query({
   },
 });
 
-/**
- * Create or update the user's profile after registration.
- * Called immediately after a successful sign-up from the Register page.
- * Pressman traceability: US-01, US-02
- */
 export const createUserProfile = mutation({
   args: {
     name: v.string(),
@@ -97,11 +78,6 @@ export const createUserProfile = mutation({
   },
 });
 
-/**
- * Get all lecturer profiles (for AI recommendation + booking).
- * Returns only public, safe fields — never exposes hashes or session data.
- * Pressman traceability: US-04, US-05
- */
 export const getLecturers = query({
   args: {},
   handler: async (ctx) => {
@@ -114,12 +90,7 @@ export const getLecturers = query({
 
 const DAY_NAMES_LC = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
-/**
- * Get all lecturers annotated with availability status for a given date+time.
- * Used by the manual lecturer picker to show/disable unavailable lecturers.
- * Returns: "available" | "outside_hours" | "already_booked" per lecturer.
- * Pressman traceability: US-06 (booking flow UX)
- */
+// Returns lecturers annotated with "available" | "outside_hours" | "already_booked" for the given slot.
 export const getLecturersWithAvailability = query({
   args: {
     date: v.string(), // "YYYY-MM-DD"
@@ -188,9 +159,6 @@ export const getLecturersWithAvailability = query({
   },
 });
 
-/**
- * Update the current user's profile information.
- */
 export const updateProfile = mutation({
   args: {
     name: v.string(),
@@ -246,11 +214,7 @@ export const markGuideAsSeen = mutation({
   },
 });
 
-/**
- * Resolves a Convex storageId to a public download URL.
- * Also handles legacy HTTP avatarUrls so the UI doesn't need to branch.
- * useStorageUrl does not exist in convex@1.36 — this query is the correct replacement.
- */
+// Handles both Convex storageId and legacy HTTP URLs. useStorageUrl is absent in convex@1.36.
 export const resolveStorageUrl = query({
   args: { storageId: v.union(v.string(), v.null()) },
   handler: async (ctx, args) => {
@@ -265,10 +229,6 @@ export const resolveStorageUrl = query({
   },
 });
 
-/**
- * Returns a Convex storage pre-signed URL for direct file upload from the browser.
- * The client POSTs the file to this URL, then calls updateAvatar with the storageId.
- */
 export const generateUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {
@@ -278,10 +238,6 @@ export const generateUploadUrl = mutation({
   },
 });
 
-/**
- * Saves a Convex storageId to the user's avatarUrl field.
- * Frontend resolves the display URL via useStorageUrl(storageId).
- */
 export const updateAvatar = mutation({
   args: { storageId: v.string() },
   handler: async (ctx, args) => {
@@ -297,12 +253,7 @@ export const updateAvatar = mutation({
   },
 });
 
-/**
- * Change the current user's password via Convex Auth.
- * Must be an action — retrieveAccount and modifyAccountCredentials require action context.
- * Flow: verify current password → update to new password (auto-hashed by provider).
- * Pressman traceability: US-03 (security)
- */
+// Must be an action, retrieveAccount/modifyAccountCredentials require action context.
 export const changePassword = action({
   args: {
     currentPassword: v.string(),
@@ -312,17 +263,17 @@ export const changePassword = action({
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    // Get the user's email — used as the account ID for the Password provider
+    // Get the user's email, used as the account ID for the Password provider
     const profile = await ctx.runQuery(api.users.getCurrentUser);
     if (!profile) throw new Error("User profile not found");
 
-    // Verify current password — throws ConvexError if incorrect
+    // Verify current password, throws ConvexError if incorrect
     await retrieveAccount(ctx, {
       provider: "password",
       account: { id: profile.email, secret: args.currentPassword },
     });
 
-    // Update to new password — provider handles hashing automatically
+    // Update to new password, provider handles hashing automatically
     await modifyAccountCredentials(ctx, {
       provider: "password",
       account: { id: profile.email, secret: args.newPassword },

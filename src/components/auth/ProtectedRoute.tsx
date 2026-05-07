@@ -7,21 +7,10 @@ interface ProtectedRouteProps {
   allowedRole?: "student" | "lecturer";
 }
 
-/**
- * Wraps a route to require authentication.
- *
- * Behaviour:
- * - Loading → show a subtle full-screen spinner
- * - Not authenticated → redirect to /login
- * - Wrong role → redirect to the correct dashboard
- * - Correct role → render children
- *
- * Pressman traceability: US-01, US-02
- */
 export function ProtectedRoute({ children, allowedRole }: ProtectedRouteProps) {
   const user = useCurrentUser();
 
-  // Still loading — don't flash a redirect
+  // Still loading, don't flash a redirect
   if (user === undefined) {
     return (
       <div className="flex h-screen items-center justify-center">

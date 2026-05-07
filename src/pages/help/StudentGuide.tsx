@@ -77,7 +77,7 @@ const bookingSections: GuideSection[] = [
       "Buka menu 'Booking Konsultasi' di sidebar.",
       "Pilih jenis konsultasi (Skripsi, Akademik Umum, Karier, dll.).",
       "Tulis deskripsi kebutuhanmu secara jelas agar AI dapat mencocokkan dosen terbaik.",
-      "Klik 'Cari Dosen' — AI akan menganalisis keahlian dan jadwal dosen.",
+      "Klik 'Cari Dosen' dan AI akan menganalisis keahlian dan jadwal dosen.",
       "Pilih salah satu dari 3 rekomendasi dosen yang ditampilkan.",
       "Tentukan tanggal, waktu, dan lokasi konsultasi, lalu klik 'Submit'.",
     ],
@@ -119,12 +119,12 @@ const historySections: GuideSection[] = [
     icon: <Calendar className="w-4 h-4 text-primary" />,
     title: "Arti Status Konsultasi",
     steps: [
-      "Pending — permintaanmu sudah terkirim, menunggu respons dosen.",
-      "Diterima — dosen menyetujui; catat jadwal dan lokasi konsultasi.",
-      "Ditolak — dosen tidak bisa; coba booking dengan dosen lain.",
-      "Dialihkan — dosen mengalihkan ke dosen lain yang lebih sesuai.",
-      "Selesai — konsultasi sudah berlangsung dan ditandai selesai.",
-      "Dibatalkan — kamu atau dosen membatalkan konsultasi.",
+      "Pending : permintaanmu sudah terkirim, menunggu respons dosen.",
+      "Diterima : dosen menyetujui, catat jadwal dan lokasi konsultasi.",
+      "Ditolak : dosen tidak bisa, coba booking dengan dosen lain.",
+      "Dialihkan : dosen mengalihkan ke dosen lain yang lebih sesuai.",
+      "Selesai : konsultasi sudah berlangsung dan ditandai selesai.",
+      "Dibatalkan : kamu atau dosen membatalkan konsultasi.",
     ],
   },
 ];
@@ -154,12 +154,12 @@ const faqs: QAItem[] = [
 
 const troubleshooting: QAItem[] = [
   {
-    q: "Saya tidak bisa login — kata sandi salah.",
+    q: "Saya tidak bisa login atau kata sandi salah.",
     a: "Pastikan kamu memasukkan email dan kata sandi yang benar (case-sensitive). Hubungi admin jika akun belum dibuat.",
   },
   {
     q: "Rekomendasi AI tidak muncul atau error.",
-    a: "Pastikan kamu sudah mengisi deskripsi kebutuhan dengan jelas (minimal 20 karakter). Coba lagi setelah beberapa detik — sistem AI kadang membutuhkan waktu lebih lama.",
+    a: "Pastikan kamu sudah mengisi deskripsi kebutuhan dengan jelas (minimal 20 karakter). Coba lagi setelah beberapa detik, sistem AI kadang membutuhkan waktu lebih lama.",
   },
   {
     q: "Booking saya tidak muncul di Riwayat.",

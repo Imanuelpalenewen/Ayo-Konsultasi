@@ -1,6 +1,4 @@
 // Reusable shimmer skeleton primitives.
-// Use animate-pulse (Tailwind) — no external deps, performant, works with dark mode.
-
 export function SkeletonBlock({ className = "" }: { className?: string }) {
   return (
     <div className={`bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse ${className}`} />

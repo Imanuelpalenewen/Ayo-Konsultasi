@@ -57,12 +57,8 @@ export function BookingPage() {
   const createConsultation = useMutation(api.consultations.createConsultation);
   const studentChangeLecturer = useMutation(api.consultations.studentChangeLecturer);
   const allLecturers = useQuery(api.users.getLecturers); // for expertise tags
-
-  // ── Mode ──────────────────────────────────────────────────────
-  const [bookingMode, setBookingMode] = useState<BookingMode>("ai");
-
-  // ── Shared form state ─────────────────────────────────────────
-  const [consultationType, setConsultationType] = useState("");
+  const [bookingMode, setBookingMode] = useState<BookingMode>("ai");   // Mode pilihan: AI recommendation vs manual picker  
+  const [consultationType, setConsultationType] = useState(""); // Shared form state
   const [customTopic, setCustomTopic] = useState("");
   const [description, setDescription] = useState("");
   const [locationType, setLocationType] = useState<LocationType | "">("");
@@ -79,23 +75,23 @@ export function BookingPage() {
       : "skip"
   );
 
-  // ── AI flow state ─────────────────────────────────────────────
+  // AI flow state 
   const [step, setStep] = useState<Step>("form");
   const [searchError, setSearchError] = useState("");
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0);
   const [expandedXAI, setExpandedXAI] = useState<string | null>(null);
 
-  // ── Manual flow state ─────────────────────────────────────────
+  // Manual flow state 
   const [lecturerSearch, setLecturerSearch] = useState("");
   const [expertiseFilter, setExpertiseFilter] = useState<string | null>(null);
   const [hideUnavailable, setHideUnavailable] = useState(false);
 
-  // ── Shared booking state ──────────────────────────────────────
+  // Shared booking state 
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [bookingError, setBookingError] = useState("");
 
-  // ── Draft persistence ─────────────────────────────────────────
+  // Draft persistence 
   const [draftRestored, setDraftRestored] = useState(false);
   const [replaceConsultationId, setReplaceConsultationId] = useState<string | null>(null);
 
@@ -163,7 +159,7 @@ export function BookingPage() {
     return () => clearInterval(interval);
   }, [step]);
 
-  // ── Derived ───────────────────────────────────────────────────
+  // Derived 
   const ampm = time ? (parseInt(time.split(":")[0]) >= 12 ? "PM" : "AM") : null;
   const todayStr = format(new Date(), "yyyy-MM-dd");
   const selectedDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
@@ -179,7 +175,7 @@ export function BookingPage() {
     }
   };
 
-  // ── Unique expertise tags across all lecturers (for filter chips) ─
+  // Unique expertise tags across all lecturers (for filter chips)
   const expertiseTags = useMemo(() => {
     if (!allLecturers) return [];
     const tags = new Set<string>();
@@ -187,7 +183,7 @@ export function BookingPage() {
     return Array.from(tags).sort();
   }, [allLecturers]);
 
-  // ── Filtered + availability-sorted lecturer list for manual mode ──
+  // Filtered + availability-sorted lecturer list for manual mode 
   const filteredLecturers = useMemo(() => {
     // Prefer availability-annotated list; fall back to plain list
     const base = (lecturersWithAvailability ?? allLecturers ?? []) as Array<
@@ -216,7 +212,7 @@ export function BookingPage() {
     });
   }, [lecturersWithAvailability, allLecturers, lecturerSearch, expertiseFilter, hideUnavailable]);
 
-  // ── Form validation (shared) ──────────────────────────────────
+  // Form validation (shared) 
   const validateForm = (): string | null => {
     if (!consultationType) return "Pilih jenis konsultasi terlebih dahulu.";
     if (consultationType === "Lainnya" && !customTopic.trim()) return "Harap tuliskan topik konsultasi kamu.";
@@ -230,7 +226,7 @@ export function BookingPage() {
     return null;
   };
 
-  // ── AI mode: validate → search ────────────────────────────────
+  // AI mode: validate → search 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     const err = validateForm();
@@ -255,7 +251,7 @@ export function BookingPage() {
     }
   };
 
-  // ── Manual mode: validate → show picker ──────────────────────
+  // Manual mode: validate → show picker 
   const handleGoManualPick = (e: React.FormEvent) => {
     e.preventDefault();
     const err = validateForm();
@@ -264,7 +260,7 @@ export function BookingPage() {
     setStep("manual_pick");
   };
 
-  // ── Book a specific lecturer (shared by both modes) ───────────
+  // Book a specific lecturer (shared by both modes)
   const handleBookLecturer = async (lecturerId: string) => {
     if (!selectedDate || !time || !locationType) return;
     setBookingError("");
@@ -272,7 +268,7 @@ export function BookingPage() {
 
     try {
       if (replaceConsultationId) {
-        // Update lecturer on existing consultation — no duplicate created
+        // Update lecturer on existing consultation, no duplicate created
         await studentChangeLecturer({
           consultationId: replaceConsultationId as Id<"consultations">,
           newLecturerId: lecturerId as Id<"users">,
@@ -317,7 +313,6 @@ export function BookingPage() {
 
   const isFormStep = step === "form";
 
-  // ─────────────────────────────────────────────────────────────
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto space-y-6">
@@ -330,7 +325,7 @@ export function BookingPage() {
             <HelpIcon topic="booking" />
           </h2>
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
-            Pilih cara menemukan dosenmu — biarkan AI membantu, atau langsung pilih sendiri.
+            Pilih cara menemukan dosenmu, biarkan AI membantu, atau langsung pilih sendiri.
           </p>
         </div>
 
@@ -350,7 +345,7 @@ export function BookingPage() {
           </div>
         )}
 
-        {/* ── Mode toggle — only visible on form step ── */}
+        {/* Mode toggle, only visible on form step  */}
         {isFormStep && (
           <div className="flex gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-fit">
             <button
@@ -380,7 +375,7 @@ export function BookingPage() {
           </div>
         )}
 
-        {/* ════════════════ STEP 1: Form (shared) ════════════════ */}
+        {/* STEP 1: Form (shared) */}
         <div className={`bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden ${!isFormStep ? "opacity-60 pointer-events-none" : ""}`}>
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
@@ -549,7 +544,7 @@ export function BookingPage() {
               </div>
             </div>
 
-            {/* Submit button — label changes per mode */}
+            {/* Submit button, label changes per mode */}
             <button
               type="submit"
               disabled={step === "searching"}
@@ -566,7 +561,7 @@ export function BookingPage() {
           </form>
         </div>
 
-        {/* ════════════════ AI: Loading ════════════════ */}
+        {/* AI: Loading */}
         {step === "searching" && (
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-10">
             <AIThinkingOrb message={LOADING_MESSAGES[loadingMsgIdx]} />
@@ -574,7 +569,7 @@ export function BookingPage() {
           </div>
         )}
 
-        {/* ════════════════ AI: Results ════════════════ */}
+        {/* AI: Results */}
         {step === "results" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -675,7 +670,7 @@ export function BookingPage() {
           </div>
         )}
 
-        {/* ════════════════ Manual: Lecturer Picker ════════════════ */}
+        {/* Manual: Lecturer Picker */}
         {step === "manual_pick" && (
           <div className="space-y-4">
 

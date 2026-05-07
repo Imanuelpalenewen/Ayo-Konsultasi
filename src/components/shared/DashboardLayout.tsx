@@ -19,7 +19,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
-  // Show onboarding overlay for first-time users — not on the guide page itself
+  // Show onboarding overlay for first-time users, not on the guide page itself
   const isHelpPage = location.pathname.includes("/help");
   const showOnboarding = user !== undefined && user !== null && !user.hasSeenGuide && !isHelpPage;
 

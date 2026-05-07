@@ -27,7 +27,6 @@ export function Navbar({ onOpenSidebar }: NavbarProps) {
   const navigate = useNavigate();
   const breadcrumb = getBreadcrumb(location.pathname, user?.role || "student");
 
-  // Resolve avatar URL (handles both storageId and legacy HTTP URLs)
   const resolvedAvatar = useQuery(
     api.users.resolveStorageUrl,
     user !== undefined ? { storageId: user?.avatarUrl ?? null } : "skip"

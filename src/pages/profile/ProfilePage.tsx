@@ -19,9 +19,6 @@ export function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-
-  // Resolve avatar URL: handles both legacy HTTP URLs and Convex storageIds.
-  // useStorageUrl does not exist in convex@1.36 — we use a backend query instead.
   const resolvedAvatarUrl = useQuery(
     api.users.resolveStorageUrl,
     user !== undefined ? { storageId: user?.avatarUrl ?? null } : "skip"

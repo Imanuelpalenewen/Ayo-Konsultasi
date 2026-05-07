@@ -83,7 +83,7 @@ export default defineSchema({
     reassignedTo: v.optional(v.id("users")),
     reassignReason: v.optional(v.string()),
 
-    // "ai" | "manual" — which path the student used to pick the lecturer
+    // "ai" | "manual" which path the student used to pick the lecturer
     bookingSource: v.optional(v.union(v.literal("ai"), v.literal("manual"))),
 
     createdAt: v.number(),

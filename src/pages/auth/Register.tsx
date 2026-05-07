@@ -30,7 +30,7 @@ export function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Pass ALL profile data as params — the Password provider's `profile`
+      // Pass ALL profile data as params, the Password provider's `profile`
       // function + createOrUpdateUser callback in auth.ts handle everything.
       // No separate createUserProfile mutation needed (avoids race condition).
       await signIn("password", {
@@ -60,7 +60,7 @@ export function RegisterPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-950 transition-colors">
 
-      {/* ── LEFT PANEL: Form ── */}
+      {/* LEFT PANEL: Form */}
       <div className="flex w-full md:w-1/2 h-screen items-center justify-center px-6 md:px-12 bg-white dark:bg-gray-950">
         <div className="w-full max-w-sm">
 
@@ -265,7 +265,7 @@ export function RegisterPage() {
         </div>
       </div>
 
-      {/* ── RIGHT PANEL: Brand / Illustration ── */}
+      {/* RIGHT PANEL: Brand / Illustration */}
       <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden bg-[#FAFAFA] dark:bg-[#0A0A0A] border-l border-gray-100 dark:border-gray-900">
         <div
           className="absolute pointer-events-none"

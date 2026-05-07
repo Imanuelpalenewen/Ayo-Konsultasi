@@ -47,7 +47,6 @@ export const createConsultation = mutation({
       }
     }
 
-    // Reject if lecturer already has a pending/accepted booking at the exact same slot
     const sameSlotBookings = await ctx.db
       .query("consultations")
       .withIndex("by_lecturer_date", (q) =>
@@ -177,9 +176,6 @@ export const getLecturerRequests = query({
       .withIndex("by_lecturer", (q) => q.eq("lecturerId", userId))
       .collect();
 
-    // Filter out completed and cancelled for the dashboard view, 
-    // or maybe just return all and let frontend filter
-    // Let's attach student profiles
     const withProfiles = await Promise.all(
       requests.map(async (req) => {
         const student = await ctx.db
@@ -240,7 +236,7 @@ export const reassignConsultation = mutation({
 
     const reason = args.reason.trim();
 
-    // Notify student — include reason so they know why
+    // Notify student, include reason so they know why
     await ctx.runMutation(internal.notifications.createNotification, {
       userId: consultation.studentId,
       type: "booking_reassigned",
@@ -248,7 +244,7 @@ export const reassignConsultation = mutation({
       relatedId: consultation._id,
     });
 
-    // Notify new lecturer — include reason so they understand the context
+    // Notify new lecturer, include reason so they understand the context
     await ctx.runMutation(internal.notifications.createNotification, {
       userId: args.newLecturerId,
       type: "new_booking",
@@ -262,7 +258,7 @@ export const reassignConsultation = mutation({
 
 /**
  * Student-initiated lecturer swap on a pending consultation.
- * Updates lecturerId in-place — no duplicate record created.
+ * Updates lecturerId in-place, no duplicate record created.
  * Validates the new lecturer's availability and checks for conflicts.
  */
 export const studentChangeLecturer = mutation({

@@ -44,7 +44,7 @@ function ReassignModal({
   const recommendReassign = useAction(api.ai.recommendReassignTargets);
   const reassign = useMutation(api.consultations.reassignConsultation);
 
-  // Cycle loading messages while AI is working — same pattern as BookingPage
+  // Cycle loading messages while AI is working, same pattern as BookingPage
   useEffect(() => {
     if (!isLoadingAI) return;
     setLoadingMsgIdx(0);
@@ -204,7 +204,7 @@ function ReassignModal({
               </div>
             )}
 
-            {/* Initial state — prompt to load */}
+            {/* Initial state, prompt to load */}
             {!recommendations && !isLoadingAI && !aiError && (
               <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
@@ -254,7 +254,7 @@ function ReassignModal({
             )}
           </div>
 
-          {/* Reason field — required */}
+          {/* Reason field, required */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Alasan Reassign <span className="text-red-500">*</span>
